@@ -1,0 +1,136 @@
+diff -Naur a/controllers/config/updateCSS.js b/controllers/config/updateCSS.js
+--- a/controllers/config/updateCSS.js	2023-07-23 14:51:23
++++ b/controllers/config/updateCSS.js	2023-12-22 00:13:20
+@@ -11,10 +11,10 @@
+   file.write(req.body.styles, false);
+ 
+   // Copy file to docker volume
+-  fs.copyFileSync(
+-    join(__dirname, '../../public/flame.css'),
+-    join(__dirname, '../../data/flame.css')
+-  );
++  // fs.copyFileSync(
++  //   join(__dirname, '../../public/flame.css'),
++  //   join(__dirname, '../../data/flame.css')
++  // );
+ 
+   res.status(200).json({
+     success: true,
+diff -Naur a/db/migrations/01_new-config.js b/db/migrations/01_new-config.js
+--- a/db/migrations/01_new-config.js	2023-07-23 14:51:23
++++ b/db/migrations/01_new-config.js	2023-12-22 01:41:34
+@@ -1,8 +1,10 @@
++const fs = require('fs');
+ const { readFile, writeFile, copyFile } = require('fs/promises');
+ const Config = require('../../models/Config');
+ 
+ const up = async (query) => {
+   await copyFile('utils/init/initialConfig.json', 'data/config.json');
++  fs.chmodSync('data/config.json', 0o644);
+ 
+   const initConfigFile = await readFile('data/config.json', 'utf-8');
+   const parsedNewConfig = JSON.parse(initConfigFile);
+@@ -25,6 +27,7 @@
+ 
+   const newConfig = JSON.stringify(parsedNewConfig);
+   await writeFile('data/config.json', newConfig);
++  fs.chmodSync('data/config.json', 0o644); 
+ 
+   await query.dropTable('config');
+ };
+diff -Naur a/middleware/multer.js b/middleware/multer.js
+--- a/middleware/multer.js	2023-07-23 14:51:23
++++ b/middleware/multer.js	2023-12-22 00:17:04
+@@ -1,8 +1,8 @@
+ const fs = require('fs');
+ const multer = require('multer');
+ 
+-if (!fs.existsSync('data/uploads')) {
+-  fs.mkdirSync('data/uploads', { recursive: true });
++if (!fs.existsSync('./data/uploads')) {
++  fs.mkdirSync('./data/uploads', { recursive: true });
+ }
+ 
+ const storage = multer.diskStorage({
+diff -Naur a/utils/init/createFile.js b/utils/init/createFile.js
+--- a/utils/init/createFile.js	2023-07-23 14:51:23
++++ b/utils/init/createFile.js	2023-12-22 01:41:34
+@@ -13,6 +13,7 @@
+   // Check if file exists
+   if (fs.existsSync(srcPath)) {
+     fs.copyFileSync(srcPath, destPath);
++    fs.chmodSync(destPath, 0o644); 
+ 
+     if (process.env.NODE_ENV == 'development') {
+       logger.log(msg.found);
+@@ -23,6 +24,7 @@
+ 
+   // Create file if not
+   fs.writeFileSync(destPath, isJSON ? JSON.stringify(template) : template);
++  fs.chmodSync(destPath, 0o644); 
+ 
+   if (process.env.NODE_ENV == 'development') {
+     logger.log(msg.created);
+diff -Naur a/utils/init/index.js b/utils/init/index.js
+--- a/utils/init/index.js	2023-07-23 14:51:23
++++ b/utils/init/index.js	2023-12-22 00:04:13
+@@ -1,10 +1,10 @@
+ const initConfig = require('./initConfig');
+ const initFiles = require('./initFiles');
+-const initDockerSecrets = require('./initDockerSecrets');
++// const initDockerSecrets = require('./initDockerSecrets');
+ const normalizeTheme = require('./normalizeTheme');
+ 
+ const initApp = async () => {
+-  initDockerSecrets();
++  // initDockerSecrets();
+   await initFiles();
+   await initConfig();
+   await normalizeTheme();
+diff -Naur a/utils/init/initConfig.js b/utils/init/initConfig.js
+--- a/utils/init/initConfig.js	2023-07-23 14:51:23
++++ b/utils/init/initConfig.js	2023-12-22 01:41:34
+@@ -1,3 +1,4 @@
++const fs = require('fs');
+ const { copyFile, readFile, writeFile } = require('fs/promises');
+ const checkFileExists = require('../checkFileExists');
+ const initialConfig = require('./initialConfig.json');
+@@ -7,6 +8,7 @@
+ 
+   if (!configExists) {
+     await copyFile('utils/init/initialConfig.json', 'data/config.json');
++    fs.chmodSync('data/config.json', 0o644);
+   }
+ 
+   const existingConfig = await readFile('data/config.json', 'utf-8');
+@@ -20,6 +22,7 @@
+   }
+ 
+   await writeFile('data/config.json', JSON.stringify(parsedConfig));
++  fs.chmodSync('data/config.json', 0o644);
+ };
+ 
+ module.exports = initConfig;
+diff -Naur a/utils/init/initialFiles.json b/utils/init/initialFiles.json
+--- a/utils/init/initialFiles.json	2023-07-23 14:51:23
++++ b/utils/init/initialFiles.json	2023-12-22 00:14:08
+@@ -1,19 +1,6 @@
+ {
+   "files": [
+     {
+-      "name": "flame.css",
+-      "msg": {
+-        "created": "Created empty CSS file",
+-        "found": "Custom CSS file found"
+-      },
+-      "paths": {
+-        "src": "../../data",
+-        "dest": "../../public"
+-      },
+-      "template": "",
+-      "isJSON": false
+-    },
+-    {
+       "name": "customQueries.json",
+       "msg": {
+         "created": "Created empty queries file",
