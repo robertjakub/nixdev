@@ -22,7 +22,8 @@ let
           hash = "sha256-YLiTOItRpvSmT2jPnMBMjpey4evus/xDFqXJT6kxoZE=";
         };
 
-        vendorHash = "sha256-cCxa45qhsrQ0K+3SO0H670s2ID6tztyVOEVySh24UHw=";
+        proxyVendor = true;
+        vendorHash = "sha256-kTt+SWemP3uo1XBwM5iGPKBUvzmdssrtFkWoCXQrxDk=";
 
         subPackages = [ package ];
 
