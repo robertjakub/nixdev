@@ -1,22 +1,25 @@
-{ lib, buildGoModule, fetchFromGitHub, pkgs, ... }:
-buildGoModule rec {
+{
+  lib,
+  buildGoModule,
+  fetchFromGitHub,
+  ...
+}:
+buildGoModule (finalAttrs: {
   pname = "graylog-sidecar";
-  version = "1.5.1";
+  version = "1.5.2";
 
   src = fetchFromGitHub {
     owner = "Graylog2";
     repo = "collector-sidecar";
-    tag = "${version}";
-    hash = "sha256-jUt5nhtM5nJ2JUnIiOrbfSglXsWxsAIjGTbxzgb/7lc=";
+    tag = finalAttrs.version;
+    hash = "sha256-xj/6Zx3BL95A2YvXjacN2tLz8+cD3QpPx566xRJ5Lus=";
   };
 
   vendorHash = "sha256-ud+OBUr0H08zMGPBIaQJwnalLRczvkDrmOTVRhoTSPk=";
 
-  buildInputs = [ pkgs.go ];
-
   ldflags = [
-    "-X github.com/Graylog2/collector-sidecar/common.GitRevision=6bb259f"
-    "-X github.com/Graylog2/collector-sidecar/common.CollectorVersion=1.5.1"
+    "-X github.com/Graylog2/collector-sidecar/common.GitRevision=1069fb7"
+    "-X github.com/Graylog2/collector-sidecar/common.CollectorVersion=${finalAttrs.version}"
     "-X github.com/Graylog2/collector-sidecar/common.CollectorVersionSuffix=-nixos"
   ];
 
@@ -31,7 +34,9 @@ buildGoModule rec {
   meta = {
     description = "Graylog Sidecar";
     homepage = "https://github.com/Graylog2/collector-sidecar";
-    changelog = "https://github.com/Graylog2/collector-sidecar/releases/tag/v${version}";
+    changelog = "https://github.com/Graylog2/collector-sidecar/releases/tag/v${finalAttrs.version}";
+    mainProgram = "graylog-sidecar";
     license = lib.licenses.sspl;
+    maintainers = with lib.maintainers; [ robertjakub ];
   };
-}
+})
