@@ -18,6 +18,7 @@ buildGoModule (finalAttrs: {
   vendorHash = "sha256-ud+OBUr0H08zMGPBIaQJwnalLRczvkDrmOTVRhoTSPk=";
 
   ldflags = [
+    # gitrev/version req'd for a connectivity with Graylog-server
     "-X github.com/Graylog2/collector-sidecar/common.GitRevision=1069fb7"
     "-X github.com/Graylog2/collector-sidecar/common.CollectorVersion=${finalAttrs.version}"
     "-X github.com/Graylog2/collector-sidecar/common.CollectorVersionSuffix=-nixos"
