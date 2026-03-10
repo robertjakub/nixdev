@@ -6,7 +6,6 @@
   openjdk11_headless,
   openjdk17_headless,
   openjdk21_headless,
-  systemd,
   nixosTests,
 }:
 {
@@ -15,7 +14,7 @@
   maintainers,
   license,
 }:
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "graylog_${lib.versions.majorMinor version}";
   inherit version;
 
@@ -41,7 +40,6 @@ stdenv.mkDerivation rec {
     "--set-default"
     "JAVA_CMD"
     "$JAVA_HOME/bin/java"
-    "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ systemd ]}"
   ];
 
   passthru.tests = { inherit (nixosTests) graylog; };
@@ -66,4 +64,4 @@ stdenv.mkDerivation rec {
     mainProgram = "graylogctl";
     platforms = platforms.unix;
   };
-}
+})

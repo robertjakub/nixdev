@@ -12,4 +12,5 @@ in
   heartbeat-9 = pkgs.heartbeat-9;
   metricbeat-9 = pkgs.metricbeat-9;
   packetbeat-9 = pkgs.packetbeat-9;
+  graylog-7_0 = pkgs.graylog-7_0;
 }
