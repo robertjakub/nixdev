@@ -38,6 +38,9 @@ stdenv.mkDerivation rec {
       else
         openjdk11_headless
     }"
+    "--set-default"
+    "JAVA_CMD"
+    "$JAVA_HOME/bin/java"
     "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ systemd ]}"
   ];
 
