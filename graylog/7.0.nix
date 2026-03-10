@@ -7,8 +7,8 @@ let
   buildGraylog = callPackage ./graylog.nix { };
 in
 buildGraylog {
-  version = "7.0.0";
-  hash = "sha256-M8FM3qErHhW7ydp62ncQQ8SpaPynpG24/k2auAWeS28=";
+  version = "7.0.5";
+  hash = "sha256-ipw8+zQThIiU6KX7ticQJqHFy7bK769DTNa2FIE/kUg=";
   maintainers = with lib.maintainers; [ bbenno ];
   license = lib.licenses.sspl;
 }
