@@ -8,6 +8,7 @@
   openjdk21_headless,
   nixosTests,
   udev,
+  systemd,
 }:
 {
   version,
@@ -41,7 +42,14 @@ stdenv.mkDerivation (finalAttrs: {
     "--set-default"
     "JAVA_CMD"
     "$JAVA_HOME/bin/java"
-    "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ udev ]}"
+  ]
+  ++ lib.optionals (stdenv.hostPlatform.isLinux) [
+    "--prefix LD_LIBRARY_PATH : ${
+      lib.makeLibraryPath [
+        systemd
+        udev
+      ]
+    }"
   ];
 
   passthru.tests = { inherit (nixosTests) graylog; };
