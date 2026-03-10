@@ -7,6 +7,7 @@
   openjdk17_headless,
   openjdk21_headless,
   nixosTests,
+  udev,
 }:
 {
   version,
@@ -40,6 +41,7 @@ stdenv.mkDerivation (finalAttrs: {
     "--set-default"
     "JAVA_CMD"
     "$JAVA_HOME/bin/java"
+    "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ udev ]}"
   ];
 
   passthru.tests = { inherit (nixosTests) graylog; };
