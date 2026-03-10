@@ -3,7 +3,6 @@
   stdenv,
   fetchurl,
   makeWrapper,
-  openjdk11_headless,
   openjdk17_headless,
   openjdk21_headless,
   nixosTests,
@@ -31,14 +30,7 @@ stdenv.mkDerivation (finalAttrs: {
   makeWrapperArgs = [
     "--set-default"
     "JAVA_HOME"
-    "${
-      if (lib.versionAtLeast version "7.0") then
-        openjdk21_headless
-      else if (lib.versionAtLeast version "5.0") then
-        openjdk17_headless
-      else
-        openjdk11_headless
-    }"
+    "${if (lib.versionAtLeast version "7.0") then openjdk21_headless else openjdk17_headless}"
     "--set-default"
     "JAVA_CMD"
     "$JAVA_HOME/bin/java"
@@ -57,11 +49,6 @@ stdenv.mkDerivation (finalAttrs: {
   installPhase = ''
     mkdir -p $out
     cp -r {graylog.jar,bin,plugin} $out
-  ''
-  + lib.optionalString (lib.versionOlder version "4.3") ''
-    cp -r lib $out
-  ''
-  + ''
     wrapProgram $out/bin/graylogctl $makeWrapperArgs
   '';
 
