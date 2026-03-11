@@ -95,7 +95,7 @@ in
 
     environment.systemPackages = cfg.collectors;
 
-    cfg.settings.collector_binaries_accesslist =
+    services.graylog-sidecar.settings.collector_binaries_accesslist =
       cfg.settings.collector_binaries_accesslist ++ map (x: "${lib.getExe x}") cfg.collectors;
 
     # reuse graylog-server user/group
