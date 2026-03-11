@@ -96,9 +96,6 @@ in
 
     environment.systemPackages = cfg.collectors;
 
-    services.graylog-sidecar.settings.collector_binaries_accesslist =
-      cfg.settings.collector_binaries_accesslist ++ collector_binaries;
-
     # reuse graylog-server user/group
     users.users = mkIf (cfg.user == "graylog") {
       graylog = {
