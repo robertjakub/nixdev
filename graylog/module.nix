@@ -8,7 +8,10 @@ let
   cfg = config.services.graylog;
 
   ini-format = pkgs.formats.iniWithGlobalSection { };
-  settings-ini = ini-format.generate "graylog2.conf" { globalSection = cfg.settings; };
+  settings-ini = ini-format.generate "graylog2.conf" {
+    sections = { };
+    globalSection = cfg.settings;
+  };
 
   glPlugins = pkgs.buildEnv {
     name = "graylog-plugins";
