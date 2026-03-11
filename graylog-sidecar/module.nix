@@ -21,7 +21,7 @@ in
 {
   options.services.graylog-sidecar = {
     enable = mkEnableOption "the Graylog Sidecar";
-    package = mkPackageOption pkgs "graylog-sidecar";
+    package = mkPackageOption pkgs "graylog-sidecar" { };
 
     settings = mkOption {
       type = types.submodule {
