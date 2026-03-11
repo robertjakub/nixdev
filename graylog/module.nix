@@ -7,9 +7,12 @@
 let
   cfg = config.services.graylog;
 
+  ini-format = pkgs.formats.ini { };
+  settings-ini = ini-format.generate "graylog2.conf" cfg.settings;
+
   confFile = pkgs.writeText "graylog.conf" ''
-    is_master = ${lib.boolToString cfg.isMaster}
-    node_id_file = ${cfg.nodeIdFile}
+    # is_master = ${lib.boolToString cfg.isMaster}
+    # node_id_file = ${cfg.nodeIdFile}
     password_secret = ${cfg.passwordSecret}
     root_username = ${cfg.rootUsername}
     root_password_sha2 = ${cfg.rootPasswordSha2}
@@ -33,31 +36,35 @@ in
   ###### interface
 
   options = {
-
     services.graylog = {
-
       enable = lib.mkEnableOption "Graylog, a log management solution";
+      package = lib.mkPackageOption pkgs "graylog" { example = "graylog-6_0"; };
 
-      package = lib.mkPackageOption pkgs "graylog" {
-        example = "graylog-6_0";
+      settings = lib.mkOption {
+        type = lib.types.submodule {
+          freeformType = ini-format.type;
+          options = {
+
+            is_master = lib.mkOption {
+              type = lib.types.bool;
+              default = true;
+              description = "Whether this is the master instance of your Graylog cluster";
+            };
+
+            node_id_file = lib.mkOption {
+              type = lib.types.str;
+              default = "/var/lib/graylog/server/node-id";
+              description = "Path of the file containing the graylog node-id";
+            };
+
+          };
+        };
       };
 
       user = lib.mkOption {
         type = lib.types.str;
         default = "graylog";
         description = "User account under which graylog runs";
-      };
-
-      isMaster = lib.mkOption {
-        type = lib.types.bool;
-        default = true;
-        description = "Whether this is the master instance of your Graylog cluster";
-      };
-
-      nodeIdFile = lib.mkOption {
-        type = lib.types.str;
-        default = "/var/lib/graylog/server/node-id";
-        description = "Path of the file containing the graylog node-id";
       };
 
       passwordSecret = lib.mkOption {
@@ -163,7 +170,7 @@ in
       description = "Graylog Server";
       wantedBy = [ "multi-user.target" ];
       environment = {
-        GRAYLOG_CONF = "${confFile}";
+        GRAYLOG_CONF = "${settings-ini}";
       };
       path = [
         pkgs.which
