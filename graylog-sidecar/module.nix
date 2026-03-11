@@ -102,6 +102,7 @@ in
         isSystemUser = true;
         group = "graylog";
         description = "Graylog server daemon user";
+        extraGroups = [ "systemd-journal" ];
       };
     };
     users.groups = mkIf (cfg.user == "graylog") { graylog = { }; };
