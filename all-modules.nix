@@ -7,6 +7,6 @@
     ./checkmate-capture/module.nix
     ./flame/module.nix
     ./graylog-sidecar/module.nix
-    ./graylog/module.nix
+    # ./graylog/module.nix
   ];
 }
