@@ -8,6 +8,7 @@ let
   cfg = config.services.graylog-sidecar;
   yaml-format = pkgs.formats.yaml { };
   settings-yaml = yaml-format.generate "graylog-sidecar.yml" cfg.settings;
+  collector_binaries = (map (x: "${lib.getExe x}") cfg.collectors);
 
   inherit (lib)
     mkEnableOption
@@ -77,7 +78,7 @@ in
 
           collector_binaries_accesslist = mkOption {
             type = with types; listOf str;
-            default = [ ];
+            default = collector_binaries;
             description = "The list of collector binaries that the Sidecar is authorized to execute.";
           };
         };
@@ -96,7 +97,7 @@ in
     environment.systemPackages = cfg.collectors;
 
     services.graylog-sidecar.settings.collector_binaries_accesslist =
-      cfg.settings.collector_binaries_accesslist ++ map (x: "${lib.getExe x}") cfg.collectors;
+      cfg.settings.collector_binaries_accesslist ++ collector_binaries;
 
     # reuse graylog-server user/group
     users.users = mkIf (cfg.user == "graylog") {
