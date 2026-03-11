@@ -23,6 +23,12 @@ in
     enable = mkEnableOption "the Graylog Sidecar";
     package = mkPackageOption pkgs "graylog-sidecar" { };
 
+    collectors = mkOption {
+      type = with types; listOf package;
+      default = [ ];
+      description = "The list of collector packages that the Sidecar is authorized to execute.";
+    };
+
     settings = mkOption {
       type = types.submodule {
         freeformType = yaml-format.type;
@@ -86,6 +92,12 @@ in
   };
 
   config = mkIf cfg.enable {
+
+    environment.systemPackages = cfg.collectors;
+
+    cfg.settings.collector_binaries_accesslist =
+      cfg.settings.collector_binaries_accesslist ++ map (x: "${lib.getExe x}") cfg.collectors;
+
     # reuse graylog-server user/group
     users.users = mkIf (cfg.user == "graylog") {
       graylog = {
