@@ -1,0 +1,4 @@
+- The `services.graylog` module has been refactored with the following breaking changes:
+   - The `services.graylog.extraConfig` option has been removed. Configuration should now be specified directly via `services.graylog.settings`.
+   - The `services.graylog.passwordSecret` option has been removed. Use `services.graylog.passwordSecretFile` to securely load from a file via systemd credencials.
+   - The `services.graylog.rootPasswordSha2` option has been removed. Use `services.graylog.rootPasswordSha2File` to securely load from a file via systemd credencials.
