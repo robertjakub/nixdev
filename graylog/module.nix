@@ -24,6 +24,8 @@ in
     enable = lib.mkEnableOption "Graylog, a log management solution";
     package = lib.mkPackageOption pkgs "graylog" { example = "graylog-6_0"; };
 
+    enableLocalMongoDB = lib.mkEnableOption "a local MongoDB instance";
+
     settings = lib.mkOption {
       default = { };
       type = lib.types.submodule {
@@ -160,6 +162,10 @@ in
   config = lib.mkIf cfg.enable {
     services.graylog.settings.elasticsearch_hosts = lib.concatStringsSep "," cfg.elasticsearchHosts;
 
+    services.mongodb = lib.mkIf cfg.enableLocalMongoDB {
+      enable = true;
+    };
+
     # Note: when changing the default, make it conditional on
     # ‘system.stateVersion’ to maintain compatibility with existing
     # systems!
@@ -194,9 +200,8 @@ in
     systemd.services.graylog = {
       description = "Graylog Server";
       wantedBy = [ "multi-user.target" ];
-      environment = {
-        GRAYLOG_CONF = "${settings-ini}";
-      };
+      after = [ "network.target" ] ++ lib.optionals cfg.enableLocalMongoDB [ "mongodb.service" ];
+      environment.GRAYLOG_CONF = "${settings-ini}";
       path = [
         pkgs.which
         pkgs.procps
