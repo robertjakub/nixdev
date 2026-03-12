@@ -9,20 +9,20 @@
       virtualisation.memorySize = 4096;
       virtualisation.diskSize = 1024 * 6;
 
-      services.mongodb.enable = true;
-      services.elasticsearch.enable = true;
-      services.elasticsearch.extraConf = ''
-        network.publish_host: 127.0.0.1
-        network.bind_host: 127.0.0.1
-      '';
+      services.mongodb.package = pkgs.mongodb-ce;
+
+      services.opensearch = {
+        enable = true;
+        extraJavaOptions = [ "-Djava.net.preferIPv4Stack=true" ];
+        settings.network.host = "127.0.0.1";
+      };
 
       services.graylog = {
         enable = true;
-        passwordSecret = "YGhZ59wXMrYOojx5xdgEpBpDw2N6FbhM4lTtaJ1KPxxmKrUvSlDbtWArwAWMQ5LKx1ojHEVrQrBMVRdXbRyZLqffoUzHfssc";
+        enableLocalMongoDB = true;
         elasticsearchHosts = [ "http://localhost:9200" ];
-
-        # `echo -n "nixos" | shasum -a 256`
-        rootPasswordSha2 = "6ed332bcfa615381511d4d5ba44a293bb476f368f7e9e304f0dff50230d1a85b";
+        passwordSecretFile = "/run/graylog-passwordsecret";
+        rootPasswordSha2File = "/run/graylog-rootpasswordsha2";
       };
 
       environment.systemPackages = [ pkgs.jq ];
@@ -72,9 +72,15 @@
           facility = "Test";
         }
       );
+
+      passwordSecret = "YGhZ59wXMrYOojx5xdgEpBpDw2N6FbhM4lTtaJ1KPxxmKrUvSlDbtWArwAWMQ5LKx1ojHEVrQrBMVRdXbRyZLqffoUzHfssc";
+      # `echo -n "nixos" | shasum -a 256`
+      rootPasswordSha2 = "6ed332bcfa615381511d4d5ba44a293bb476f368f7e9e304f0dff50230d1a85b";
     in
     ''
       machine.start()
+      machine.execute("echo \"${passwordSecret}\" > /run/graylog-passwordsecret && chmod 400 /run/checkmate-passwordsecret")
+      machine.execute("echo \"${rootPasswordSha2}\" > /run/graylog-rootpasswordsha2 && chmod 400 /run/checkmate-rootpasswordsha2")
       machine.wait_for_unit("graylog.service")
 
       machine.wait_until_succeeds(
