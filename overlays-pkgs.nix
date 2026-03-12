@@ -10,4 +10,5 @@ self: super: {
   metricbeat-9 = (super.callPackages ./beats/9.x.nix { }).metricbeat;
   packetbeat-9 = (super.callPackages ./beats/9.x.nix { }).packetbeat;
   graylog-7_0 = super.callPackage ./graylog/7.0.nix { };
+  graylog-6_3 = super.callPackage ./graylog/6.3.nix { };
 }
