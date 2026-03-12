@@ -168,7 +168,7 @@ in
         mkThrow = ver: throw "graylog-${ver} was removed, please upgrade your graylog version.";
         base =
           if lib.versionAtLeast config.system.stateVersion "26.05" then
-            pkgs.nixdev-graylog-7_0
+            pkgs.nixdev.graylog-7_0
           else if lib.versionAtLeast config.system.stateVersion "25.05" then
             pkgs.graylog-6_0
           else if lib.versionAtLeast config.system.stateVersion "23.05" then
