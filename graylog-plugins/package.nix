@@ -38,6 +38,7 @@ let
     );
 in
 {
+  # last release 7y: Req graylog 2.5+
   aggregates = glPlugin rec {
     pname = "graylog-aggregates";
     pluginName = "graylog-plugin-aggregates";
@@ -51,6 +52,8 @@ in
       description = "Plugin that enables users to execute term searches and get notified when the given criteria are met";
     };
   };
+
+  # This plugin no longer works in recent Graylog versions
   auth_sso = glPlugin rec {
     pname = "graylog-auth-sso";
     pluginName = "graylog-plugin-auth-sso";
@@ -64,6 +67,8 @@ in
       description = "SSO support for Graylog through trusted HTTP headers set by load balancers or authentication proxies";
     };
   };
+
+  # last release: 8y, req: 2.4+
   dnsresolver = glPlugin rec {
     pname = "graylog-dnsresolver";
     pluginName = "graylog-plugin-dnsresolver";
@@ -77,6 +82,8 @@ in
       description = "Message filter plugin can be used to do DNS lookups for the source field in Graylog messages";
     };
   };
+
+  # this plugin has been merged into graylog-core
   enterprise-integrations = glPlugin rec {
     pname = "graylog-enterprise-integrations";
     pluginName = "graylog-plugin-enterprise-integrations";
@@ -96,6 +103,8 @@ in
       license = licenses.unfree;
     };
   };
+
+  # release: 9y, req: 2.0+
   filter-messagesize = glPlugin rec {
     pname = "graylog-filter-messagesize";
     pluginName = "graylog-plugin-filter-messagesize";
@@ -109,6 +118,8 @@ in
       description = "Prints out all messages that have an estimated size crossing a configured threshold during processing";
     };
   };
+
+  # released: 3y
   integrations = glPlugin rec {
     pname = "graylog-integrations";
     pluginName = "graylog-plugin-integrations";
@@ -127,6 +138,8 @@ in
       description = "Collection of open source Graylog integrations that will be released together";
     };
   };
+
+  # released 8y ???
   internal-logs = glPlugin rec {
     pname = "graylog-internal-logs";
     pluginName = "graylog-plugin-internal-logs";
@@ -140,6 +153,8 @@ in
       description = "Graylog plugin to record internal logs of Graylog efficiently instead of sending them over the network";
     };
   };
+
+  # released... a long time ago in the galaxy...
   ipanonymizer = glPlugin rec {
     pname = "graylog-ipanonymizer";
     pluginName = "graylog-plugin-ipanonymizer";
@@ -153,6 +168,8 @@ in
       description = "Graylog-server plugin that replaces the last octet of IP addresses in messages with xxx";
     };
   };
+
+  # released... a long...
   jabber = glPlugin rec {
     pname = "graylog-jabber";
     pluginName = "graylog-plugin-jabber";
@@ -166,6 +183,8 @@ in
       description = "Jabber Alarmcallback Plugin for Graylog";
     };
   };
+
+  # 2013...
   metrics = glPlugin rec {
     pname = "graylog-metrics";
     pluginName = "graylog-plugin-metrics";
@@ -179,6 +198,8 @@ in
       description = "Output plugin for integrating Graphite, Ganglia and StatsD with Graylog";
     };
   };
+
+  # 2016
   mongodb-profiler = glPlugin rec {
     pname = "graylog-mongodb-profiler";
     pluginName = "graylog-plugin-mongodb-profiler";
@@ -192,6 +213,7 @@ in
       description = "Graylog input plugin that reads MongoDB profiler data";
     };
   };
+
   pagerduty = glPlugin rec {
     pname = "graylog-pagerduty";
     pluginName = "graylog-plugin-pagerduty";
@@ -205,6 +227,7 @@ in
       description = "Alarm callback plugin for integrating PagerDuty into Graylog";
     };
   };
+
   redis = glPlugin rec {
     pname = "graylog-redis";
     pluginName = "graylog-plugin-redis";
@@ -218,6 +241,7 @@ in
       description = "Redis plugin for Graylog";
     };
   };
+
   slack = glPlugin rec {
     pname = "graylog-slack";
     pluginName = "graylog-plugin-slack";
@@ -231,6 +255,7 @@ in
       description = "Can notify Slack or Mattermost channels about triggered alerts in Graylog (Alarm Callback)";
     };
   };
+
   smseagle = glPlugin rec {
     pname = "graylog-smseagle";
     pluginName = "graylog-plugin-smseagle";
@@ -245,6 +270,7 @@ in
       license = licenses.gpl3Only;
     };
   };
+
   snmp = glPlugin rec {
     pname = "graylog-snmp";
     pluginName = "graylog-plugin-snmp";
@@ -258,6 +284,7 @@ in
       description = "Graylog plugin to receive SNMP traps";
     };
   };
+
   spaceweather = glPlugin rec {
     pname = "graylog-spaceweather";
     pluginName = "graylog-plugin-spaceweather";
@@ -271,6 +298,7 @@ in
       description = "Correlate proton density to the response time of your app and the ion temperature to your exception rate";
     };
   };
+
   splunk = glPlugin rec {
     pname = "graylog-splunk";
     pluginName = "graylog-plugin-splunk";
@@ -285,6 +313,7 @@ in
       license = licenses.gpl3Only;
     };
   };
+
   twiliosms = glPlugin rec {
     pname = "graylog-twiliosms";
     pluginName = "graylog-plugin-twiliosms";
@@ -298,6 +327,7 @@ in
       description = "Alarm callback plugin for integrating the Twilio SMS API into Graylog";
     };
   };
+
   twitter = glPlugin rec {
     pname = "graylog-twitter";
     pluginName = "graylog-plugin-twitter";
@@ -311,4 +341,5 @@ in
       description = "Graylog input plugin that reads Twitter messages based on keywords in realtime";
     };
   };
+
 }
