@@ -9,8 +9,8 @@
 let
   inherit (lib)
     licenses
-    maintainers
-    platforms
+    # maintainers
+    # platforms
     sourceTypes
     ;
 
