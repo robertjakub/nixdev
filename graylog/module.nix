@@ -52,25 +52,32 @@ in
           message_journal_dir = lib.mkOption {
             type = lib.types.str;
             default = "/var/lib/graylog/data/journal";
-            description = "The directory which will be used to store the message journal. The directory must be exclusively used by Graylog and must not contain any other files than the ones created by Graylog itself";
+            description = ''
+              The directory which will be used to store the message journal.
+              The directory must be exclusively used by Graylog and must not contain
+              any other files than the ones created by Graylog itself
+            '';
           };
 
           plugin_dir = lib.mkOption {
             type = lib.types.str;
             default = "/var/lib/graylog/plugins";
-            description = "Directory used to store Graylog server plugins.";
+            description = "Directory used to store Graylog server plugins";
           };
 
           data_dir = lib.mkOption {
             type = lib.types.str;
             default = "/var/lib/graylog/data";
-            description = "Directory used to store Graylog server state.";
+            description = "Directory used to store Graylog server state";
           };
 
           mongodb_uri = lib.mkOption {
             type = lib.types.str;
             default = "mongodb://127.0.0.1:27017/graylog";
-            description = "MongoDB connection string. See http://docs.mongodb.org/manual/reference/connection-string/ for details";
+            description = ''
+              MongoDB connection string.
+              See http://docs.mongodb.org/manual/reference/connection-string/ for details.
+            '';
           };
 
         };
@@ -86,18 +93,18 @@ in
     passwordSecretFile = lib.mkOption {
       type = lib.types.path;
       description = ''
-        You MUST set a secret to secure/pepper the stored user passwords here. Use at least 64 characters.
-        Generate one by using for example: pwgen -N 1 -s 96
+        You MUST set a secret to secure/pepper the stored user passwords here.
+        Use at least 64 characters. Generate one by using for example: pwgen -N 1 -s 96
       '';
     };
 
     rootPasswordSha2File = lib.mkOption {
       type = lib.types.path;
       description = ''
-        You MUST specify a hash password for the root user (which you only need to initially set up the
-        system and in case you lose connectivity to your authentication backend)
-        This password cannot be changed using the API or via the web interface. If you need to change it,
-        modify it here.
+        You MUST specify a hash password for the root user (which you only need
+        to initially set up the system and in case you lose connectivity to your
+        authentication backend). This password cannot be changed using the API
+        or via the web interface. If you need to change it, modify it here.
         Create one by using for example: echo -n yourpassword | shasum -a 256
         and use the resulting hash value as string for the option
       '';
@@ -106,7 +113,11 @@ in
     elasticsearchHosts = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       example = lib.literalExpression ''[ "http://node1:9200" "http://user:password@node2:19200" ]'';
-      description = "List of valid URIs of the http ports of your elastic nodes. If one or more of your elasticsearch hosts require authentication, include the credentials in each node URI that requires authentication";
+      description = ''
+        List of valid URIs of the http ports of your elastic nodes. If one or more
+        of your elasticsearch hosts require authentication, include the credentials
+        in each node URI that requires authentication
+      '';
     };
 
     plugins = lib.mkOption {
@@ -134,12 +145,12 @@ in
       "services"
       "graylog"
       "passwordSecret"
-    ] "Please instead use `services.graylog.passwordSecretFile`.")
+    ] "Please instead use `services.graylog.passwordSecretFile`")
     (lib.mkRemovedOptionModule [
       "services"
       "graylog"
       "rootPasswordSha2"
-    ] "Please instead use `services.graylog.rootPasswordSha2File`.")
+    ] "Please instead use `services.graylog.rootPasswordSha2File`")
     (lib.mkRenamedOptionModule
       [ "services" "graylog" "dataDir" ]
       [ "services" "graylog" "settings" "data_dir" ]
@@ -156,7 +167,7 @@ in
       "services"
       "graylog"
       "extraConfig"
-    ] "Please instead use `services.graylog.settings`.")
+    ] "Please instead use `services.graylog.settings`")
   ];
 
   config = lib.mkIf cfg.enable {
@@ -171,10 +182,10 @@ in
     # systems!
     services.graylog.package =
       let
-        mkThrow = ver: throw "graylog-${ver} was removed, please upgrade your graylog version.";
+        mkThrow = ver: throw "graylog-${ver} was removed, please upgrade your graylog version";
         base =
           if lib.versionAtLeast config.system.stateVersion "26.05" then
-            pkgs.nixdev.graylog-7_0
+            pkgs.graylog-7_0
           else if lib.versionAtLeast config.system.stateVersion "25.05" then
             pkgs.graylog-6_0
           else if lib.versionAtLeast config.system.stateVersion "23.05" then
