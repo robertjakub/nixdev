@@ -25,8 +25,8 @@ stdenv.mkDerivation (finalAttrs: {
   };
 
   dontBuild = true;
-
   nativeBuildInputs = [ makeWrapper ];
+
   makeWrapperArgs = [
     "--set-default"
     "JAVA_HOME"
@@ -53,7 +53,7 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   meta = {
-    description = "Open source log management solution";
+    description = "Self-Managed Log Management";
     homepage = "https://www.graylog.org/";
     sourceProvenance = with lib.sourceTypes; [ binaryBytecode ];
     inherit license;
