@@ -115,6 +115,48 @@ in
 
   };
 
+  imports = [
+    (lib.mkRenamedOptionModule
+      [ "services" "graylog" "isMaster" ]
+      [ "services" "graylog" "settings" "is_master" ]
+    )
+    (lib.mkRenamedOptionModule
+      [ "services" "graylog" "nodeIdFile" ]
+      [ "services" "graylog" "settings" "node_id_file" ]
+    )
+    (lib.mkRenamedOptionModule
+      [ "services" "graylog" "rootUsername" ]
+      [ "services" "graylog" "settings" "root_username" ]
+    )
+    (lib.mkRemovedOptionModule [
+      "services"
+      "graylog"
+      "passwordSecret"
+    ] "Please instead use `services.graylog.passwordSecretFile`.")
+    (lib.mkRemovedOptionModule [
+      "services"
+      "graylog"
+      "rootPasswordSha2"
+    ] "Please instead use `services.graylog.rootPasswordSha2File`.")
+    (lib.mkRenamedOptionModule
+      [ "services" "graylog" "dataDir" ]
+      [ "services" "graylog" "settings" "data_dir" ]
+    )
+    (lib.mkRenamedOptionModule
+      [ "services" "graylog" "messageJournalDir" ]
+      [ "services" "graylog" "settings" "message_journal_dir" ]
+    )
+    (lib.mkRenamedOptionModule
+      [ "services" "graylog" "mongodbUri" ]
+      [ "services" "graylog" "settings" "mongodb_uri" ]
+    )
+    (lib.mkRemovedOptionModule [
+      "services"
+      "graylog"
+      "extraConfig"
+    ] "Please instead use `services.graylog.settings`.")
+  ];
+
   config = lib.mkIf cfg.enable {
     services.graylog.settings.elasticsearch_hosts = lib.concatStringsSep "," cfg.elasticsearchHosts;
 
