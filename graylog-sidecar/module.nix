@@ -41,10 +41,10 @@ in
             example = "https://<graylogserver>/api/";
           };
 
-          server_api_token = mkOption {
-            type = types.str;
-            description = "The API Token for authenticating with the Graylog Server.";
-          };
+          # server_api_token = mkOption {
+          #   type = types.str;
+          #   description = "The API Token for authenticating with the Graylog Server.";
+          # };
 
           node_id = mkOption {
             type = types.str;
@@ -90,9 +90,14 @@ in
       default = "graylog";
       description = "User account under which graylog-sidecar runs.";
     };
+
+    APITokenFile = mkOption { type = types.path; };
+
   };
 
   config = mkIf cfg.enable {
+
+    services.graylog-sidecar.settings.server_api_token = "\${API_TOKEN}";
 
     environment.systemPackages = cfg.collectors;
 
@@ -114,8 +119,8 @@ in
       startLimitIntervalSec = 60;
       startLimitBurst = 3;
       serviceConfig = {
+        LoadCredential = [ "API_TOKEN:${cfg.APITokenFile}" ];
         StateDirectory = "graylog-sidecar";
-        ExecStart = "${cfg.package}/bin/graylog-sidecar -c ${settings-yaml}";
         AmbientCapabilities = [
           "CAP_AUDIT_CONTROL"
           "CAP_AUDIT_READ"
@@ -127,6 +132,13 @@ in
         TimeoutStopSec = "30s";
         Restart = "on-failure";
       };
+      script = ''
+        set -eou pipefail
+        shopt -s inherit_errexit
+
+        API_TOKEN="$(<"$CREDENTIALS_DIRECTORY/API_TOKEN")" \
+        ${cfg.package}/bin/graylog-sidecar -c ${settings-yaml}
+      '';
 
     };
   };
