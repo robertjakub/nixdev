@@ -2,6 +2,7 @@
   lib,
   buildGoModule,
   fetchFromGitHub,
+  fetchpatch,
   ...
 }:
 buildGoModule (finalAttrs: {
@@ -14,6 +15,14 @@ buildGoModule (finalAttrs: {
     tag = finalAttrs.version;
     hash = "sha256-xj/6Zx3BL95A2YvXjacN2tLz8+cD3QpPx566xRJ5Lus=";
   };
+
+  patches = [
+    (fetchpatch {
+      # do not log sensitive token information
+      url = "https://github.com/Graylog2/collector-sidecar/pull/529.patch";
+      hash = "sha256-bM7v8CsJa65oCc9crLtBTFMzDvBAFNrlZaRdjQLWWYQ=";
+    })
+  ];
 
   vendorHash = "sha256-ud+OBUr0H08zMGPBIaQJwnalLRczvkDrmOTVRhoTSPk=";
 
