@@ -1,6 +1,6 @@
 { lib, pkgs, ... }:
 {
-  name = "checkmate-server";
+  name = "graylog";
   meta.maintainers = with lib.maintainers; [
     bbeno
     robertjakub
@@ -137,12 +137,14 @@
 
       machine.succeed(
           'test "$(curl -X GET '
-          + "-sSfL 'http://127.0.0.1:9000/api/search/universal/relative?query=*' "
+          + "-sSfL 'http://127.0.0.1:9000/api/search/universal/relative?query=*&range=300&fields=*' "
           + f"-u {session}:session "
           + "-H 'Accept: application/json' "
           + "-H 'Content-Type: application/json' "
           + "-H 'x-requested-by: cli'"
           + ' | jq \'.total_results\' | xargs echo)" = "1"'
       )
+
+      machine.shutdown()
     '';
 }
