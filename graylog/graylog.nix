@@ -36,12 +36,8 @@ stdenv.mkDerivation (finalAttrs: {
     "$JAVA_HOME/bin/java"
   ]
   ++ lib.optionals (stdenv.hostPlatform.isLinux) [
-    "--prefix LD_LIBRARY_PATH : ${
-      lib.makeLibraryPath [
-        systemd
-        udev
-      ]
-    }"
+    "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ systemd ]}"
+    "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ udev ]}"
   ];
 
   passthru.tests = { inherit (nixosTests) graylog; };
