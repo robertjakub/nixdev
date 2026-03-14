@@ -21,10 +21,10 @@ let
 in
 {
   options.services.graylog = {
-    enable = lib.mkEnableOption "Graylog, a log management solution";
+    enable = lib.mkEnableOption "Graylog, a log management solution.";
     package = lib.mkPackageOption pkgs "graylog" { example = "graylog-6_0"; };
 
-    enableLocalMongoDB = lib.mkEnableOption "a local MongoDB instance";
+    enableLocalMongoDB = lib.mkEnableOption "a local MongoDB instance.";
 
     settings = lib.mkOption {
       default = { };
@@ -34,19 +34,19 @@ in
           is_master = lib.mkOption {
             type = lib.types.bool;
             default = true;
-            description = "Whether this is the master instance of your Graylog cluster";
+            description = "Whether this is the master instance of your Graylog cluster.";
           };
 
           node_id_file = lib.mkOption {
             type = lib.types.str;
             default = "/var/lib/graylog/server/node-id";
-            description = "Path of the file containing the graylog node-id";
+            description = "Path of the file containing the graylog node-id.";
           };
 
           root_username = lib.mkOption {
             type = lib.types.str;
             default = "admin";
-            description = "Name of the default administrator user";
+            description = "Name of the default administrator user.";
           };
 
           message_journal_dir = lib.mkOption {
@@ -55,20 +55,20 @@ in
             description = ''
               The directory which will be used to store the message journal.
               The directory must be exclusively used by Graylog and must not contain
-              any other files than the ones created by Graylog itself
+              any other files than the ones created by Graylog itself.
             '';
           };
 
           plugin_dir = lib.mkOption {
             type = lib.types.str;
             default = "/var/lib/graylog/plugins";
-            description = "Directory used to store Graylog server plugins";
+            description = "Directory used to store Graylog server plugins.";
           };
 
           data_dir = lib.mkOption {
             type = lib.types.str;
             default = "/var/lib/graylog/data";
-            description = "Directory used to store Graylog server state";
+            description = "Directory used to store Graylog server state.";
           };
 
           mongodb_uri = lib.mkOption {
@@ -87,26 +87,31 @@ in
     user = lib.mkOption {
       type = lib.types.str;
       default = "graylog";
-      description = "User account under which graylog runs";
+      description = "User account under which graylog runs.";
     };
 
     passwordSecretFile = lib.mkOption {
       type = lib.types.path;
       description = ''
-        You MUST set a secret to secure/pepper the stored user passwords here.
-        Use at least 64 characters. Generate one by using for example: pwgen -N 1 -s 96
+        Path of the file containing the secret to secure/pepper the stored user passwords here.
+
+        You MUST set a secret here. Use at least 64 characters.
+        Generate one by using for example: pwgen -N 1 -s 96
       '';
     };
 
     rootPasswordSha2File = lib.mkOption {
       type = lib.types.path;
       description = ''
+        Path of the file containing a hash password for the root user.
+
         You MUST specify a hash password for the root user (which you only need
         to initially set up the system and in case you lose connectivity to your
         authentication backend). This password cannot be changed using the API
         or via the web interface. If you need to change it, modify it here.
+
         Create one by using for example: echo -n yourpassword | shasum -a 256
-        and use the resulting hash value as string for the option
+        and use the resulting hash value as string for the option.
       '';
     };
 
@@ -116,14 +121,14 @@ in
       description = ''
         List of valid URIs of the http ports of your elastic nodes. If one or more
         of your elasticsearch hosts require authentication, include the credentials
-        in each node URI that requires authentication
+        in each node URI that requires authentication.
       '';
     };
 
     plugins = lib.mkOption {
-      description = "Extra graylog plugins";
-      default = [ ];
       type = lib.types.listOf lib.types.package;
+      default = [ ];
+      description = "Extra graylog plugins.";
     };
 
   };
@@ -182,7 +187,7 @@ in
     # systems!
     services.graylog.package =
       let
-        mkThrow = ver: throw "graylog-${ver} was removed, please upgrade your graylog version";
+        mkThrow = ver: throw "graylog-${ver} was removed, please upgrade your graylog version.";
         base =
           if lib.versionAtLeast config.system.stateVersion "26.05" then
             pkgs.graylog-7_0
