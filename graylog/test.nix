@@ -1,7 +1,10 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 {
-  name = "graylog";
-  meta.maintainers = [ ];
+  name = "checkmate-server";
+  meta.maintainers = with lib.maintainers; [
+    bbeno
+    robertjakub
+  ];
 
   nodes.machine =
     { pkgs, ... }:
@@ -9,6 +12,7 @@
       virtualisation.memorySize = 4096;
       virtualisation.diskSize = 1024 * 6;
 
+      # use community-edition for tests
       services.mongodb.package = pkgs.mongodb-ce;
 
       services.opensearch = {
@@ -20,7 +24,7 @@
       services.graylog = {
         enable = true;
         enableLocalMongoDB = true;
-        elasticsearchHosts = [ "http://localhost:9200" ];
+        elasticsearchHosts = [ "http://127.0.0.1:9200" ];
         passwordSecretFile = "/run/graylog-passwordsecret";
         rootPasswordSha2File = "/run/graylog-rootpasswordsha2";
       };
@@ -29,7 +33,7 @@
 
       systemd.services.graylog.path = [ pkgs.netcat ];
       systemd.services.graylog.preStart = ''
-        until nc -z localhost 9200; do
+        until nc -z 127.0.0.1 9200; do
           sleep 2
         done
       '';
