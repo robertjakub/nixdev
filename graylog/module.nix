@@ -22,7 +22,7 @@ in
 {
   options.services.graylog = {
     enable = lib.mkEnableOption "Graylog, a log management solution.";
-    package = lib.mkPackageOption pkgs "graylog" { example = "graylog-6_0"; };
+    package = lib.mkPackageOption pkgs "graylog" { };
 
     enableLocalMongoDB = lib.mkEnableOption "a local MongoDB instance.";
 
@@ -82,6 +82,22 @@ in
 
         };
       };
+      example = {
+        is_master = true;
+        http_bind_address = "127.0.0.1:9000";
+        http_external_uri = "http://127.0.0.1:9000/";
+        mongodb_uri = "mongodb://127.0.0.1:27017/graylog";
+      };
+      description = ''
+        Configuration for Graylog, as a structured Nix attribute set.
+
+        If you specify settings here, they will be used as persistent
+        configuration and Graylog will retain the same configuration
+        across restarts.
+
+        For a complete list of available options, see:
+        https://go2docs.graylog.org/current/setting_up_graylog/server_configuration_settings_reference.htm
+      '';
     };
 
     user = lib.mkOption {
@@ -181,24 +197,6 @@ in
     services.mongodb = lib.mkIf cfg.enableLocalMongoDB {
       enable = true;
     };
-
-    # Note: when changing the default, make it conditional on
-    # ‘system.stateVersion’ to maintain compatibility with existing
-    # systems!
-    services.graylog.package =
-      let
-        mkThrow = ver: throw "graylog-${ver} was removed, please upgrade your graylog version.";
-        base =
-          if lib.versionAtLeast config.system.stateVersion "26.05" then
-            pkgs.graylog-7_0
-          else if lib.versionAtLeast config.system.stateVersion "25.05" then
-            pkgs.graylog-6_0
-          else if lib.versionAtLeast config.system.stateVersion "23.05" then
-            mkThrow "5_1"
-          else
-            mkThrow "3_3";
-      in
-      lib.mkDefault base;
 
     users.users = lib.mkIf (cfg.user == "graylog") {
       graylog = {
