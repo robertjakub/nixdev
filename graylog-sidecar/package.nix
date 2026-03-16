@@ -18,8 +18,9 @@ buildGoModule (finalAttrs: {
 
   patches = [
     (fetchpatch {
-      # do not log sensitive token information
-      url = "https://github.com/Graylog2/collector-sidecar/pull/529.patch";
+      # Don't log expanded environment variables
+      name = "vendor-pr529.patch";
+      url = "https://github.com/Graylog2/collector-sidecar/commit/a9d8d06d2aa2baa11933c2ed65d6d9ce65945bc3.patch";
       hash = "sha256-bM7v8CsJa65oCc9crLtBTFMzDvBAFNrlZaRdjQLWWYQ=";
     })
   ];
