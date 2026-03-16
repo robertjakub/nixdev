@@ -1,8 +1,9 @@
+# Run this test with NIXPKGS_ALLOW_UNFREE=1
 { lib, pkgs, ... }:
 {
   name = "graylog";
   meta.maintainers = with lib.maintainers; [
-    bbeno
+    bbenno
     robertjakub
   ];
 
