@@ -212,6 +212,7 @@ in
 
     systemd.tmpfiles.rules = [
       "d '${cfg.settings.message_journal_dir}' - ${cfg.user} - - -"
+      "d '${cfg.settings.plugin_dir}' 0755 ${cfg.user} - - -"
       "d '${dirOf cfg.settings.node_id_file}' 0700 ${cfg.user} - - -"
     ];
 
@@ -225,7 +226,9 @@ in
         pkgs.procps
       ];
       preStart = ''
-        ln -sf ${cfg.package}/plugin ${cfg.settings.plugin_dir}
+        for plugins in `ls ${cfg.package}/plugin/`; do
+        	ln -sf ${cfg.package}/plugin/$plugins ${cfg.settings.plugin_dir}/$plugins || true
+        done
       '';
       serviceConfig = {
         LoadCredential = [
