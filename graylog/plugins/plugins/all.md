@@ -9,9 +9,8 @@
 * https://github.com/graylog-labs/graylog-plugin-pagerduty
 * https://github.com/Graylog2/graylog-plugin-auth-sso
 * https://github.com/sivasamyk/graylog2-input-lumberjack
-* 
-* 
-* 
+
+
 # ???
 * https://github.com/nksft/graylog2-plugin-exec 10y old?
 * https://github.com/alcampos/graylog-plugin-alert-condition-delorean ????
@@ -49,14 +48,18 @@
 * https://github.com/graylog-labs/graylog-plugin-mongodb-profiler
 * https://github.com/nexylan/graylog-rabbitmq
 * https://github.com/jtkkex/graylog-plugin-function-tagmatcher
-* https://github.com/airbus-cyber/graylog-plugin-correlation-count !!!
-* https://github.com/airbus-cyber/graylog-plugin-aggregation-count
-* https://github.com/airbus-cyber/graylog-plugin-logging-alert !!!
 * https://github.com/billmurrin/graylog-plugin-slookup-function
 * https://github.com/emkds1729/graylog-plugin-gcp-pubsub
 * https://github.com/irgendwr/TelegramAlert
 * https://github.com/PLUTEX/graylog-plugin-output-xmpp
 * https://github.com/itchannel/graylognotifications !!!?
+
+# already in GC
+* https://github.com/airbus-cyber/graylog-plugin-aggregation-count
+
+# DONE
+* https://github.com/airbus-cyber/graylog-plugin-correlation-count !!!
+* https://github.com/airbus-cyber/graylog-plugin-logging-alert !!!
 * https://github.com/airbus-cyber/graylog-plugin-alert-wizard !!!?
-* 
+
 # ??? EOF

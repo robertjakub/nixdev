@@ -33,4 +33,7 @@ let
 in
 {
   output-syslog = (import plugins/output-syslog.nix { inherit glPlugin fetchurl; }).plugin;
+  correlation-count = (import plugins/correlation-count.nix { inherit glPlugin fetchurl; }).plugin;
+  logging-alert = (import plugins/logging-alert.nix { inherit glPlugin fetchurl; }).plugin;
+  alert-wizard = (import plugins/alert-wizard.nix { inherit glPlugin fetchurl; }).plugin;
 }
