@@ -5,9 +5,17 @@
   makeWrapper,
   openjdk17_headless,
   nixosTests,
+  buildEnv,
   udev,
   systemd,
+  plugins ? [ ],
 }:
+let
+  pluginsDir = buildEnv {
+    name = "graylog-plugins";
+    paths = plugins;
+  };
+in
 stdenv.mkDerivation (finalAttrs: {
   pname = "graylog_${lib.versions.majorMinor finalAttrs.version}";
   version = "6.3.10";
@@ -39,6 +47,9 @@ stdenv.mkDerivation (finalAttrs: {
     mkdir -p $out
     cp -r {graylog.jar,bin,plugin} $out
     wrapProgram $out/bin/graylogctl $makeWrapperArgs
+    for plugin in `ls ${pluginsDir}/bin/`; do
+      ln -sf ${pluginsDir}/bin/$plugin $out/plugin/$plugin || true
+    done
   '';
 
   meta = {
