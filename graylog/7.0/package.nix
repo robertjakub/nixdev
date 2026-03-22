@@ -5,18 +5,16 @@
   makeWrapper,
   openjdk21_headless,
   nixosTests,
-  linkFarm,
+  buildEnv,
   udev,
   systemd,
   plugins ? [ ],
 }:
 let
-  pluginsDir = linkFarm "graylog-plugins" (
-    map (p: {
-      name = (builtins.parseDrvName p.name).name;
-      path = p.outPath or p;
-    }) plugins
-  );
+  pluginsDir = buildEnv {
+    name = "graylog-plugins";
+    paths = plugins;
+  };
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "graylog_${lib.versions.majorMinor finalAttrs.version}";
@@ -49,9 +47,10 @@ stdenv.mkDerivation (finalAttrs: {
     mkdir -p $out
     cp -r {graylog.jar,bin,plugin} $out
     wrapProgram $out/bin/graylogctl $makeWrapperArgs
-    find ${pluginsDir} -name "*.jar" -type f -exec ls -l {} \;
 
-    fail-and-abort
+    for plugin in `ls ${pluginsDir}/bin/`; do
+      ln -sf ${pluginsDir}/bin/$plugin $out/plugin/$plugin || true
+    done
   '';
 
   meta = {

@@ -12,12 +12,6 @@ let
       globalSection = cfg.settings;
     }
   );
-
-  glPlugins = pkgs.buildEnv {
-    name = "graylog-plugins";
-    paths = cfg.plugins;
-  };
-
 in
 {
   options.services.graylog = {
@@ -235,10 +229,6 @@ in
         for plugins in `ls ${cfg.package}/plugin/`; do
         	ln -s ${cfg.package}/plugin/$plugins ${cfg.settings.plugin_dir}/$plugins || true
         done
-
-        # for declarativeplugin in `ls ${glPlugins}/bin/`; do
-        #   ln -sf ${glPlugins}/bin/$declarativeplugin ${cfg.settings.plugin_dir}/$declarativeplugin || true
-        # done
       '';
       serviceConfig = {
         LoadCredential = [
