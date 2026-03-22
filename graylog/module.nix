@@ -228,8 +228,9 @@ in
         for includedplugin in `ls ${cfg.package}/plugin/`; do
         	ln -s ${cfg.package}/plugin/$includedplugin ${cfg.settings.plugin_dir}/$includedplugin || true
         done
+
         for declarativeplugin in `ls ${glPlugins}/bin/`; do
-          ln -sf ${glPlugins}/bin/$declarativeplugin ${cfg.settings.plugin_dir}/$declarativeplugin
+          ln -sf ${glPlugins}/bin/$declarativeplugin ${cfg.settings.plugin_dir}/$declarativeplugin || true
         done
       '';
       serviceConfig = {

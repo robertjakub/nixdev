@@ -15,4 +15,5 @@ in
   graylog-7_0 = pkgs.graylog-7_0;
   graylog-6_3 = pkgs.graylog-6_3;
   graylog = pkgs.graylog;
+  graylogPlugins = pkgs.graylogPlugins;
 }
