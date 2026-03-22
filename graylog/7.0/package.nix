@@ -49,7 +49,7 @@ stdenv.mkDerivation (finalAttrs: {
     mkdir -p $out
     cp -r {graylog.jar,bin,plugin} $out
     wrapProgram $out/bin/graylogctl $makeWrapperArgs
-    ls -lR ${pluginsDir}
+    bash
     fail-and-abort
   '';
 
