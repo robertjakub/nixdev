@@ -22,7 +22,13 @@ in
 {
   options.services.graylog = {
     enable = lib.mkEnableOption "Graylog, a log management solution.";
-    package = lib.mkPackageOption pkgs "graylog" { };
+    package = lib.mkPackageOption pkgs "graylog" { } // {
+      apply =
+        pkg:
+        pkg.override (old: {
+          plugins = (old.plugins or [ ]) ++ cfg.plugins;
+        });
+    };
 
     enableLocalMongoDB = lib.mkEnableOption "a local MongoDB instance.";
 
@@ -230,9 +236,9 @@ in
         	ln -s ${cfg.package}/plugin/$plugins ${cfg.settings.plugin_dir}/$plugins || true
         done
 
-        for declarativeplugin in `ls ${glPlugins}/bin/`; do
-          ln -sf ${glPlugins}/bin/$declarativeplugin ${cfg.settings.plugin_dir}/$declarativeplugin || true
-        done
+        # for declarativeplugin in `ls ${glPlugins}/bin/`; do
+        #   ln -sf ${glPlugins}/bin/$declarativeplugin ${cfg.settings.plugin_dir}/$declarativeplugin || true
+        # done
       '';
       serviceConfig = {
         LoadCredential = [
