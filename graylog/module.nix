@@ -144,7 +144,8 @@ in
     plugins = lib.mkOption {
       type = lib.types.listOf lib.types.package;
       default = [ ];
-      description = "Extra graylog plugins.";
+      description = "List of plugins to add to Graylog.";
+      example = "with graylogPlugins; [ output-syslog ]";
     };
 
   };
@@ -225,8 +226,8 @@ in
         pkgs.procps
       ];
       preStart = ''
-        for includedplugin in `ls ${cfg.package}/plugin/`; do
-        	ln -s ${cfg.package}/plugin/$includedplugin ${cfg.settings.plugin_dir}/$includedplugin || true
+        for plugins in `ls ${cfg.package}/plugin/`; do
+        	ln -s ${cfg.package}/plugin/$plugins ${cfg.settings.plugin_dir}/$plugins || true
         done
 
         for declarativeplugin in `ls ${glPlugins}/bin/`; do
