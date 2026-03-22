@@ -13,7 +13,7 @@
 let
   pluginsDir = linkFarm "graylog-plugins" (
     map (p: {
-      name = (builtins.parseDrvName p.name).name + ".jar";
+      name = (builtins.parseDrvName p.name).name;
       path = p.outPath or p;
     }) plugins
   );
@@ -49,7 +49,8 @@ stdenv.mkDerivation (finalAttrs: {
     mkdir -p $out
     cp -r {graylog.jar,bin,plugin} $out
     wrapProgram $out/bin/graylogctl $makeWrapperArgs
-    bash
+    find ${pluginsDir} -name "*.jar" -type f -exec ls -l {} \;
+
     fail-and-abort
   '';
 
