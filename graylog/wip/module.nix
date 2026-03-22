@@ -198,21 +198,17 @@ in
       enable = true;
     };
 
-    users = {
-      users = lib.mkIf (cfg.user == "graylog") {
-        graylog = {
-          isSystemUser = true;
-          group = "graylog";
-          description = "Graylog server daemon user";
-        };
+    users.users = lib.mkIf (cfg.user == "graylog") {
+      graylog = {
+        isSystemUser = true;
+        group = "graylog";
+        description = "Graylog server daemon user";
       };
-      groups = lib.mkIf (cfg.user == "graylog") { graylog = { }; };
     };
+    users.groups = lib.mkIf (cfg.user == "graylog") { graylog = { }; };
 
     systemd.tmpfiles.rules = [
       "d '${cfg.settings.message_journal_dir}' - ${cfg.user} - - -"
-      "d '${cfg.settings.plugin_dir}' 0755 ${cfg.user} - - -"
-      "d '${dirOf cfg.settings.node_id_file}' 0700 ${cfg.user} - - -"
     ];
 
     systemd.services.graylog = {
@@ -225,11 +221,17 @@ in
         pkgs.procps
       ];
       preStart = ''
-        for includedplugin in `ls ${cfg.package}/plugin/`; do
-        	ln -s ${cfg.package}/plugin/$includedplugin ${cfg.settings.plugin_dir}/$includedplugin || true
-        done
+        rm -rf /var/lib/graylog/plugins || true
+        mkdir -p /var/lib/graylog/plugins -m 755
+
+        mkdir -p "$(dirname ${cfg.settings.node_id_file})"
+        chown -R ${cfg.user} "$(dirname ${cfg.settings.node_id_file})"
+
         for declarativeplugin in `ls ${glPlugins}/bin/`; do
-          ln -sf ${glPlugins}/bin/$declarativeplugin ${cfg.settings.plugin_dir}/$declarativeplugin
+          ln -sf ${glPlugins}/bin/$declarativeplugin /var/lib/graylog/plugins/$declarativeplugin
+        done
+        for includedplugin in `ls ${cfg.package}/plugin/`; do
+          ln -s ${cfg.package}/plugin/$includedplugin /var/lib/graylog/plugins/$includedplugin || true
         done
       '';
       serviceConfig = {

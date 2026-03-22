@@ -14,4 +14,5 @@ in
   packetbeat-9 = pkgs.packetbeat-9;
   graylog-7_0 = pkgs.graylog-7_0;
   graylog-6_3 = pkgs.graylog-6_3;
+  graylog = pkgs.graylog;
 }
