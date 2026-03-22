@@ -12,7 +12,7 @@ self: super: rec {
   graylog-7_0 = super.callPackage ./graylog/7.0/package.nix { };
   graylog-6_3 = super.callPackage ./graylog/6.3/package.nix { };
   graylog = super.callPackage ./graylog/current/package.nix { };
-  graylogPlugins = lib.recurseIntoAttrs (
+  graylogPlugins = recurseIntoAttrs (
     super.callPackage ./graylog/plugins/package.nix { graylogPackage = graylog; }
   );
 
