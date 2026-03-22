@@ -47,8 +47,8 @@ stdenv.mkDerivation (finalAttrs: {
     mkdir -p $out
     cp -r {graylog.jar,bin,plugin} $out
     wrapProgram $out/bin/graylogctl $makeWrapperArgs
-    for plugin in `ls ${pluginsDir}/bin/`; do
-      ln -sf ${pluginsDir}/bin/$plugin $out/plugin/$plugin || true
+    for plugin in `ls ${pluginsDir}/plugin/`; do
+      ln -sf ${pluginsDir}/plugin/$plugin $out/plugin/$plugin || true
     done
   '';
 

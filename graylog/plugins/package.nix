@@ -5,15 +5,14 @@
   unzip,
   graylogPackage,
 }:
-
 let
   glPlugin =
     a@{
       pluginName,
       version,
       installPhase ? ''
-        mkdir -p $out/bin
-        cp $src $out/bin/${pluginName}-${version}.jar
+        mkdir -p $out/plugin
+        cp $src $out/plugin/${pluginName}-${version}.jar
       '',
       ...
     }:
@@ -30,10 +29,16 @@ let
         };
       }
     );
+
+  files = lib.filterAttrs (_name: _type: _type == "regular" && lib.hasSuffix ".nix" _name) (
+    builtins.readDir ./plugins
+  );
+
+  graylogPlugins = lib.mapAttrs' (
+    name: _:
+    lib.nameValuePair (lib.removeSuffix ".nix" name) (
+      import (./plugins + "/${name}") { inherit lib glPlugin fetchurl; }
+    )
+  ) files;
 in
-{
-  output-syslog = (import plugins/output-syslog.nix { inherit glPlugin fetchurl; }).plugin;
-  correlation-count = (import plugins/correlation-count.nix { inherit glPlugin fetchurl; }).plugin;
-  logging-alert = (import plugins/logging-alert.nix { inherit glPlugin fetchurl; }).plugin;
-  alert-wizard = (import plugins/alert-wizard.nix { inherit glPlugin fetchurl; }).plugin;
-}
+graylogPlugins

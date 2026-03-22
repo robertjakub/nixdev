@@ -10,7 +10,6 @@
 * https://github.com/Graylog2/graylog-plugin-auth-sso
 * https://github.com/sivasamyk/graylog2-input-lumberjack
 
-
 # ???
 * https://github.com/nksft/graylog2-plugin-exec 10y old?
 * https://github.com/alcampos/graylog-plugin-alert-condition-delorean ????
@@ -56,7 +55,6 @@
 
 # already in GC
 * https://github.com/airbus-cyber/graylog-plugin-aggregation-count
-
 # DONE
 * https://github.com/airbus-cyber/graylog-plugin-correlation-count !!!
 * https://github.com/airbus-cyber/graylog-plugin-logging-alert !!!
