@@ -143,7 +143,7 @@ in
       '';
     };
 
-    mutablePlugins = lib.mkEnableOption "Whether plugins can be installed, updated and uninstalled manually.";
+    mutablePlugins = lib.mkEnableOption "Whether custom plugins can be installed, updated or uninstalled manually.";
 
     plugins = lib.mkOption {
       type = lib.types.listOf lib.types.package;
