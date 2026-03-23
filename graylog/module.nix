@@ -229,15 +229,11 @@ in
         pkgs.which
         pkgs.procps
       ];
-      preStart =
-        if (cfg.mutablePlugins) then
-          ''
-            for plugins in `ls ${cfg.package}/plugin/`; do
-            	ln -sf ${cfg.package}/plugin/$plugins ${cfg.settings.plugin_dir}/$plugins || true
-            done
-          ''
-        else
-          "ln -sf ${cfg.package}/plugin ${cfg.settings.plugin_dir} || true";
+      preStart = lib.optionalString (cfg.mutablePlugins) ''
+        for plugins in `ls ${cfg.package}/plugin/`; do
+        	ln -sf ${cfg.package}/plugin/$plugins ${cfg.settings.plugin_dir}/$plugins || true
+        done
+      '';
       serviceConfig = {
         LoadCredential = [
           "passwordSecret:${cfg.passwordSecretFile}"
