@@ -79,12 +79,13 @@ in
               MongoDB connection string.
               See http://docs.mongodb.org/manual/reference/connection-string/ for details.
             '';
+          };
 
-            elasticsearch_hosts = lib.mkOption {
-              type = lib.types.str;
-              apply = lib.concatStringsSep "," cfg.elasticsearchHosts;
-              description = "List of valid URIs of the http ports of your elastic nodes.";
-            };
+          elasticsearch_hosts = lib.mkOption {
+            internal = true;
+            type = lib.types.str;
+            apply = lib.concatStringsSep "," cfg.elasticsearchHosts;
+            description = "List of valid URIs of the http ports of your elastic nodes.";
           };
 
         };
