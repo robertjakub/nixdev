@@ -82,12 +82,16 @@ in
           };
 
           elasticsearch_hosts = lib.mkOption {
-            internal = true;
-            type = lib.types.str;
-            apply = lib.concatStringsSep "," cfg.elasticsearchHosts;
-            description = "List of valid URIs of the http ports of your elastic nodes.";
+            type = lib.types.listOf lib.types.str;
+            default = [ ];
+            apply = lib.concatStringsSep ",";
+            example = lib.literalExpression ''[ "http://node1:9200" "http://user:password@node2:19200" ]'';
+            description = ''
+              List of valid URIs of the http ports of your elastic nodes. If one or more
+              of your elasticsearch hosts require authentication, include the credentials
+              in each node URI that requires authentication.
+            '';
           };
-
         };
       };
       example = {
@@ -136,17 +140,6 @@ in
 
         Create one by using for example: echo -n yourpassword | shasum -a 256
         and use the resulting hash value as string for the option.
-      '';
-    };
-
-    elasticsearchHosts = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
-      default = [ ];
-      example = lib.literalExpression ''[ "http://node1:9200" "http://user:password@node2:19200" ]'';
-      description = ''
-        List of valid URIs of the http ports of your elastic nodes. If one or more
-        of your elasticsearch hosts require authentication, include the credentials
-        in each node URI that requires authentication.
       '';
     };
 
