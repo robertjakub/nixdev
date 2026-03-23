@@ -8,5 +8,6 @@
     ./flame/module.nix
     ./graylog-sidecar/module.nix
     ./graylog/module.nix
+    ./graylog-forwarder/module.nix
   ];
 }
