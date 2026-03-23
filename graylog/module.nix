@@ -62,6 +62,7 @@ in
           plugin_dir = lib.mkOption {
             type = lib.types.str;
             default = "/var/lib/graylog/plugins";
+            apply = value: if (!cfg.mutablePlugins) then "${cfg.package}/plugin" else value;
             description = "Directory used to store Graylog server plugins.";
           };
 
@@ -78,6 +79,13 @@ in
               MongoDB connection string.
               See http://docs.mongodb.org/manual/reference/connection-string/ for details.
             '';
+
+            elasticsearch_hosts = lib.mkOption {
+              internal = true;
+              type = lib.types.str;
+              apply = lib.concatStringsSep "," cfg.elasticsearchHosts;
+              description = "List of valid URIs of the http ports of your elastic nodes.";
+            };
           };
 
         };
@@ -133,6 +141,7 @@ in
 
     elasticsearchHosts = lib.mkOption {
       type = lib.types.listOf lib.types.str;
+      default = [ ];
       example = lib.literalExpression ''[ "http://node1:9200" "http://user:password@node2:19200" ]'';
       description = ''
         List of valid URIs of the http ports of your elastic nodes. If one or more
@@ -195,8 +204,6 @@ in
   ];
 
   config = lib.mkIf cfg.enable {
-    services.graylog.settings.elasticsearch_hosts = lib.concatStringsSep "," cfg.elasticsearchHosts;
-
     services.mongodb = lib.mkIf cfg.enableLocalMongoDB {
       enable = true;
     };
