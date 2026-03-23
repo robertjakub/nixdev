@@ -81,7 +81,6 @@ in
             '';
 
             elasticsearch_hosts = lib.mkOption {
-              internal = true;
               type = lib.types.str;
               apply = lib.concatStringsSep "," cfg.elasticsearchHosts;
               description = "List of valid URIs of the http ports of your elastic nodes.";
