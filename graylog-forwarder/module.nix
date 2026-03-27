@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  ...
 }:
 let
   cfg = config.services.graylog-forwarder;
@@ -13,7 +14,7 @@ let
   );
 in
 {
-  options.services.graylog-forwarding = {
+  options.services.graylog-forwarder = {
     enable = lib.mkEnableOption "Graylog Forwarder, a standalone agent that sends log data to Graylog.";
     package = lib.mkPackageOption pkgs "graylog-forwarder" { };
 
