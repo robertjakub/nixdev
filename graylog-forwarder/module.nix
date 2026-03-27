@@ -75,6 +75,10 @@ in
   # forwarder_grpc_api_token
 
   config = lib.mkIf cfg.enable {
+    systemd.tmpfiles.rules = [
+      "d '${dirOf cfg.settings.node_id_file}' 0700 ${cfg.user} - - -"
+    ];
+
     users = {
       users = lib.mkIf (cfg.user == "graylog") {
         graylog = {
