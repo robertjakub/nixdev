@@ -102,7 +102,7 @@ in
         set -eou pipefail
         shopt -s inherit_errexit
 
-        FORWARDER_GRPC_API_TOKEN ="$(<"$CREDENTIALS_DIRECTORY/api_token")" \
+        GRAYLOG_FORWARDER_GRPC_API_TOKEN ="$(<"$CREDENTIALS_DIRECTORY/api_token")" \
         ${cfg.package}/bin/graylog-forwarder run -f ${settings-ini}
       '';
     };

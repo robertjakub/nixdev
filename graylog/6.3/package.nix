@@ -53,7 +53,7 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   meta = {
-    description = "Self-Managed Log Management";
+    description = "Graylog Open, Self-Managed Log Management";
     homepage = "https://www.graylog.org/";
     sourceProvenance = with lib.sourceTypes; [ binaryBytecode ];
     maintainers = with lib.maintainers; [
