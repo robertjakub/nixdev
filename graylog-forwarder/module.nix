@@ -23,12 +23,6 @@ in
       type = lib.types.submodule {
         freeformType = lib.types.anything;
         options = {
-
-          # forwarder_server_hostname = ${cfg.forwarderServerHostname}
-          # forwarder_configuration_port = ${toString cfg.forwarderConfigPort}
-          # forwarder_message_transmission_port = ${toString cfg.forwarderMessagesPort}
-          # forwarder_grpc_enable_tls = false
-
           node_id_file = lib.mkOption {
             type = lib.types.str;
             default = "/var/lib/graylog-forwarder/server/node-id";

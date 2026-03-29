@@ -5,6 +5,7 @@
   fetchurl,
   makeWrapper,
   openjdk21_headless,
+  udev,
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "graylog-forwarder_${lib.versions.majorMinor finalAttrs.version}";
@@ -21,10 +22,11 @@ stdenv.mkDerivation (finalAttrs: {
   nativeBuildInputs = [ makeWrapper ];
 
   makeWrapperArgs = [
-    "--set-default"
-    "JAVA_HOME"
-    "${openjdk21_headless}"
+    "--set-default JAVA_HOME ${openjdk21_headless}"
     "--set JAVA_CMD $JAVA_HOME/bin/java"
+  ]
+  ++ lib.optionals (stdenv.hostPlatform.isLinux) [
+    "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ udev ]}"
   ];
 
   installPhase = ''

@@ -34,12 +34,8 @@ stdenv.mkDerivation (finalAttrs: {
   ++ lib.optionals stdenv.hostPlatform.isLinux [ autoPatchelfHook ];
 
   makeWrapperArgs = [
-    "--set-default"
-    "JAVA_HOME"
-    "${openjdk21_headless}"
-    "--set-default"
-    "JAVA_CMD"
-    "$JAVA_HOME/bin/java"
+    "--set-default JAVA_HOME ${openjdk21_headless}"
+    "--set-default JAVA_CMD $JAVA_HOME/bin/java"
   ]
   ++ lib.optionals (stdenv.hostPlatform.isLinux) [
     "--prefix LD_LIBRARY_PATH : ${lib.makeLibraryPath [ systemd ]}"
