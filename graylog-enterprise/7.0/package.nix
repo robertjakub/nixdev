@@ -3,6 +3,7 @@
   stdenv,
   fetchurl,
   makeWrapper,
+  autoPatchelfHook,
   openjdk21_headless,
   nixosTests,
   buildEnv,
@@ -27,7 +28,10 @@ stdenv.mkDerivation (finalAttrs: {
   };
 
   dontBuild = true;
-  nativeBuildInputs = [ makeWrapper ];
+  nativeBuildInputs = [
+    makeWrapper
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [ autoPatchelfHook ];
 
   makeWrapperArgs = [
     "--set-default"
