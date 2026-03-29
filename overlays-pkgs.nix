@@ -11,6 +11,7 @@ self: super: rec {
   packetbeat-9 = (super.callPackages ./beats/9.x.nix { }).packetbeat;
   graylog-forwarder = super.callPackage ./graylog-forwarder/package.nix { };
   graylog-7_0 = super.callPackage ./graylog/7.0/package.nix { };
+  graylog-enterprise-7_0 = super.callPackage ./graylog-enterprise/7.0/package.nix { };
   graylog-6_3 = super.callPackage ./graylog/6.3/package.nix { };
   graylog = super.callPackage ./graylog/current/package.nix { };
   graylogPlugins = super.recurseIntoAttrs (
