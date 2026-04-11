@@ -20,11 +20,11 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "graylog_enterprise_${lib.versions.majorMinor finalAttrs.version}";
-  version = "7.0.5";
+  version = "7.0.6";
 
   src = fetchurl {
     url = "https://packages.graylog2.org/releases/graylog-enterprise/graylog-enterprise-${finalAttrs.version}.tgz";
-    hash = "sha256-2LjTmiIgoow2D6Ty7QnR3vFzkerxWnLmWDuEmc52FYo=";
+    hash = "sha256-OEKABSgcuZmX6jn0zSIyC0vwAOIr9w9y9vN+WS8o2pA=";
   };
 
   dontBuild = true;
