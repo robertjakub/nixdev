@@ -1,6 +1,5 @@
-diff -Naur a/controllers/config/updateCSS.js b/controllers/config/updateCSS.js
---- a/controllers/config/updateCSS.js	2023-07-23 14:51:23
-+++ b/controllers/config/updateCSS.js	2023-12-22 00:13:20
+--- a/controllers/config/updateCSS.js	2026-04-24 17:37:52.000000000 +0200
++++ b/controllers/config/updateCSS.js	2026-04-25 14:10:47.186296208 +0200
 @@ -11,10 +11,10 @@
    file.write(req.body.styles, false);
  
@@ -16,9 +15,8 @@ diff -Naur a/controllers/config/updateCSS.js b/controllers/config/updateCSS.js
  
    res.status(200).json({
      success: true,
-diff -Naur a/db/migrations/01_new-config.js b/db/migrations/01_new-config.js
---- a/db/migrations/01_new-config.js	2023-07-23 14:51:23
-+++ b/db/migrations/01_new-config.js	2023-12-22 01:41:34
+--- a/db/migrations/01_new-config.js	2026-04-24 17:37:52.000000000 +0200
++++ b/db/migrations/01_new-config.js	2026-04-25 14:19:06.436753700 +0200
 @@ -1,8 +1,10 @@
 +const fs = require('fs');
  const { readFile, writeFile, copyFile } = require('fs/promises');
@@ -34,13 +32,12 @@ diff -Naur a/db/migrations/01_new-config.js b/db/migrations/01_new-config.js
  
    const newConfig = JSON.stringify(parsedNewConfig);
    await writeFile('data/config.json', newConfig);
-+  fs.chmodSync('data/config.json', 0o644); 
++  fs.chmodSync('data/config.json', 0o644);
  
    await query.dropTable('config');
  };
-diff -Naur a/middleware/multer.js b/middleware/multer.js
---- a/middleware/multer.js	2023-07-23 14:51:23
-+++ b/middleware/multer.js	2023-12-22 00:17:04
+--- a/middleware/multer.js	2026-04-24 17:37:52.000000000 +0200
++++ b/middleware/multer.js	2026-04-25 14:14:50.995732796 +0200
 @@ -1,8 +1,8 @@
  const fs = require('fs');
  const multer = require('multer');
@@ -52,14 +49,13 @@ diff -Naur a/middleware/multer.js b/middleware/multer.js
  }
  
  const storage = multer.diskStorage({
-diff -Naur a/utils/init/createFile.js b/utils/init/createFile.js
---- a/utils/init/createFile.js	2023-07-23 14:51:23
-+++ b/utils/init/createFile.js	2023-12-22 01:41:34
+--- a/utils/init/createFile.js	2026-04-24 17:37:52.000000000 +0200
++++ b/utils/init/createFile.js	2026-04-25 14:16:32.626690376 +0200
 @@ -13,6 +13,7 @@
    // Check if file exists
    if (fs.existsSync(srcPath)) {
      fs.copyFileSync(srcPath, destPath);
-+    fs.chmodSync(destPath, 0o644); 
++    fs.chmodSync(destPath, 0o644);
  
      if (process.env.NODE_ENV == 'development') {
        logger.log(msg.found);
@@ -67,29 +63,28 @@ diff -Naur a/utils/init/createFile.js b/utils/init/createFile.js
  
    // Create file if not
    fs.writeFileSync(destPath, isJSON ? JSON.stringify(template) : template);
-+  fs.chmodSync(destPath, 0o644); 
++  fs.chmodSync(destPath, 0o644);
  
    if (process.env.NODE_ENV == 'development') {
      logger.log(msg.created);
-diff -Naur a/utils/init/index.js b/utils/init/index.js
---- a/utils/init/index.js	2023-07-23 14:51:23
-+++ b/utils/init/index.js	2023-12-22 00:04:13
-@@ -1,10 +1,10 @@
+--- a/utils/init/index.js	2026-04-24 17:37:52.000000000 +0200
++++ b/utils/init/index.js	2026-04-25 14:16:53.474497269 +0200
+@@ -1,11 +1,11 @@
  const initConfig = require('./initConfig');
  const initFiles = require('./initFiles');
 -const initDockerSecrets = require('./initDockerSecrets');
 +// const initDockerSecrets = require('./initDockerSecrets');
+ const initSecret = require('./initSecret');
  const normalizeTheme = require('./normalizeTheme');
  
  const initApp = async () => {
 -  initDockerSecrets();
 +  // initDockerSecrets();
+   initSecret();
    await initFiles();
    await initConfig();
-   await normalizeTheme();
-diff -Naur a/utils/init/initConfig.js b/utils/init/initConfig.js
---- a/utils/init/initConfig.js	2023-07-23 14:51:23
-+++ b/utils/init/initConfig.js	2023-12-22 01:41:34
+--- a/utils/init/initConfig.js	2026-04-24 17:37:52.000000000 +0200
++++ b/utils/init/initConfig.js	2026-04-25 14:17:44.130523707 +0200
 @@ -1,3 +1,4 @@
 +const fs = require('fs');
  const { copyFile, readFile, writeFile } = require('fs/promises');
@@ -111,9 +106,8 @@ diff -Naur a/utils/init/initConfig.js b/utils/init/initConfig.js
  };
  
  module.exports = initConfig;
-diff -Naur a/utils/init/initialFiles.json b/utils/init/initialFiles.json
---- a/utils/init/initialFiles.json	2023-07-23 14:51:23
-+++ b/utils/init/initialFiles.json	2023-12-22 00:14:08
+--- a/utils/init/initialFiles.json	2026-04-24 17:37:52.000000000 +0200
++++ b/utils/init/initialFiles.json	2026-04-25 14:18:25.521913694 +0200
 @@ -1,19 +1,6 @@
  {
    "files": [

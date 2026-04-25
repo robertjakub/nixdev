@@ -7,13 +7,13 @@
 }:
 let
   pname = "flame";
-  version = "2.3.1";
+  version = "2.4.0";
 
   src = fetchFromGitHub {
     owner = "pawelmalak";
     repo = "flame";
     rev = "v${version}";
-    hash = "sha256-0c1fcZkkJOGhOkCXKQhVXNtVGo1oUltAMT2KCCNoF0c=";
+    hash = "sha256-Slnft/tDtogjuTnQXus0Mp7y6AlOYjCV1riQ2M9cIc8=";
   };
 
   client = buildNpmPackage (finalAttrs: {
@@ -37,7 +37,7 @@ buildNpmPackage (finalAttrs: {
     nodejs
     python3
   ];
-  npmDepsHash = "sha256-IkXLNI624IhLqsfJAJdi/kNJMvPTe5p+aCnuUTJISPE=";
+  npmDepsHash = "sha256-YGusqgF8xU6QBB0r0M8V0UZHLuSTdYlYyIMXnov7YEA=";
 
   patches = [
     ./disable-docker.patch
