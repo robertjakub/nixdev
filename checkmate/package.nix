@@ -8,20 +8,20 @@
 }:
 let
   pname = "checkmate-server";
-  version = "3.5.1";
+  version = "3.7.1";
 
   src = fetchFromGitHub {
     owner = "bluewave-labs";
     repo = "Checkmate";
     tag = "v${version}";
-    hash = "sha256-0Qm6CzX9D/gmZ6zOKSzsE+gMQqV+LlOqWHgn4zVcdsQ=";
+    hash = "sha256-Lq+XLNiOv47f/x5DFW9RejqsFO03A1KsEo8qMUG2hL4=";
   };
 
   backend = buildNpmPackage (finalAttrs: {
     inherit version;
     pname = "${pname}-backend";
     src = "${src}/server";
-    npmDepsHash = "sha256-XGgnmBZnXzTma6rgat1Qn6e1sU3Dmsd6pY7V62JbcpQ=";
+    npmDepsHash = "sha256-rZhD0e/OInzcmRjxie5tFKq1rpldqmNsSiDO9XxD498=";
     installPhase = ''
       runHook preInstall
       mkdir -p $out
@@ -40,7 +40,7 @@ buildNpmPackage (finalAttrs: {
 
   nativeBuildInputs = [ makeWrapper ];
 
-  npmDepsHash = "sha256-ynfVjAP6Ix8RDnsTWtGdQ6a1EzUDI6RoJsAOTK06NNc=";
+  npmDepsHash = "sha256-ly3OS2ECuF+J9D9y2/wneWtEGLt3vYnTD6OzdbWzeso=";
 
   postPatch = ''
     echo "VITE_APP_API_BASE_URL=/api/v1" > .env.production
