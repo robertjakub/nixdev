@@ -6,17 +6,17 @@
 
 buildGoModule (finalAttrs: {
   pname = "checkmate-capture";
-  version = "1.3.2";
+  version = "1.4.0";
 
   src = fetchFromGitHub {
     owner = "bluewave-labs";
     repo = "capture";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-2G/DHiNENjJPpiA7qVUcyjcGFHDbBR6ARc9FABHOVd4=";
+    hash = "sha256-JFHtXbK8jL4gnGbanF2wVp4C8xKRt1aMtkbBQDeysD4=";
   };
 
   proxyVendor = true;
-  vendorHash = "sha256-XE011U2sI1kj7VnMjhZoxWakXMQGhIuFSCYUIjhefOQ=";
+  vendorHash = "sha256-JkhDoafqpqoD05lBf5lCXMD3dSc3uArTW1lUBRWSp30=";
 
   ldflags = [ "-X main.Version=${finalAttrs.version}" ];
 
