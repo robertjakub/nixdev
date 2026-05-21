@@ -28,6 +28,11 @@ in
       description = "The port the passcore should listen on.";
     };
 
+    bind = mkOption {
+      type = types.str;
+      default = "127.0.0.1";
+    };
+
     settings = mkOption {
       type = types.submodule { freeformType = with types; attrsOf str; };
       default = { };
@@ -75,7 +80,7 @@ in
 
     services.passcore.settings = {
       HOME = "/var/lib/passcore";
-      Kestrel__Endpoints__MyHttpEndpoint__Url = "http://127.0.0.1:${toString cfg.port}";
+      Kestrel__Endpoints__MyHttpEndpoint__Url = "http://${cfg.bind}:${toString cfg.port}";
       # DATA_DIR = "/var/lib/uptime-kuma/";
       # NODE_ENV = mkDefault "production";
       # HOST = mkDefault "127.0.0.1";
