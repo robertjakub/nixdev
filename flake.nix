@@ -18,10 +18,6 @@
         nixpkgs: system:
         import nixpkgs {
           inherit system;
-          config.permittedInsecurePackages = [
-            "dotnet-sdk-6.0.428"
-            "aspnetcore-runtime-6.0.36"
-          ];
           overlays = [ self.overlays.pkgs ];
         };
       mkLegacyPackagesFor = nixpkgs: forSystems systems (mkPkgs nixpkgs);

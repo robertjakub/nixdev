@@ -4,7 +4,7 @@
     (final: prev: {
       nixdev = import self.inputs.nixpkgs {
         system = prev.stdenv.hostPlatform.system;
-        config = { inherit (prev.config) allowUnfree allowUnfreePredicate; };
+        config = { inherit (prev.config) allowUnfree allowUnfreePredicate permittedInsecurePackages; };
         overlays = [ self.overlays.pkgs ];
       };
     })
