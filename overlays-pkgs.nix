@@ -17,5 +17,6 @@ self: super: rec {
   graylogPlugins = super.recurseIntoAttrs (
     super.callPackage ./graylog/plugins/package.nix { graylogPackage = graylog; }
   );
+  passcore = super.callPackage ./passcore/package.nix { };
 
 }

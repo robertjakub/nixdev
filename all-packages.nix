@@ -18,4 +18,5 @@ in
   graylog = pkgs.graylog;
   graylogPlugins = pkgs.graylogPlugins;
   graylog-forwarder = pkgs.graylog-forwarder;
+  passcore = pkgs.passcore;
 }

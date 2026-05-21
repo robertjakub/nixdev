@@ -9,5 +9,6 @@
     ./graylog-sidecar/module.nix
     ./graylog/module.nix
     ./graylog-forwarder/module.nix
+    ./passcore/module.nix
   ];
 }
