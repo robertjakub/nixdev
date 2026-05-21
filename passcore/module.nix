@@ -119,7 +119,7 @@ in
 
         export AppSettings__LdapPassword="$(<"$CREDENTIALS_DIRECTORY/password")"
 
-        cd $cfg.package}
+        cd ${cfg.package}
         ${pkgs.dotnet-sdk_6}/bin/dotnet Unosquare.PassCore.Web.dll
       '';
     };
