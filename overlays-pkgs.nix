@@ -1,5 +1,6 @@
 self: super: rec {
   # final: prev:
+  JRECaCerts = super.callPackage ./javacerts/package.nix { };
   auditbeat-9 = (super.callPackages ./beats/9.x.nix { }).auditbeat;
   checkmate = super.callPackage ./checkmate/package.nix { };
   checkmate-capture = super.callPackage ./checkmate-capture/package.nix { };
