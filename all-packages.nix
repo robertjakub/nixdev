@@ -12,10 +12,13 @@ in
   heartbeat-9 = pkgs.heartbeat-9;
   metricbeat-9 = pkgs.metricbeat-9;
   packetbeat-9 = pkgs.packetbeat-9;
-  graylog-7_0 = pkgs.graylog-7_0;
-  graylog-enterprise-7_0 = pkgs.graylog-enterprise-7_0;
   graylog-6_3 = pkgs.graylog-6_3;
-  graylog = pkgs.graylog;
+  graylog-7_0 = pkgs.graylog-7_0;
+  graylog-7_1 = pkgs.graylog-7_1;
+  graylog = pkgs.graylog-7_1;
+  graylog-enterprise-7_0 = pkgs.graylog-enterprise-7_0;
+  graylog-enterprise-7_1 = pkgs.graylog-enterprise-7_1;
+  graylog-enterprise = pkgs.graylog-enterprise-7_1;
   graylogPlugins = pkgs.graylogPlugins;
   graylog-forwarder = pkgs.graylog-forwarder;
   passcore = pkgs.passcore;
