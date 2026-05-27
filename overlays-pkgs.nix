@@ -15,7 +15,8 @@ self: super: rec {
   graylog-7_1 = super.callPackage ./graylog/7.1/package.nix { };
   graylog-enterprise-7_0 = super.callPackage ./graylog-enterprise/7.0/package.nix { };
   graylog-enterprise-7_1 = super.callPackage ./graylog-enterprise/7.1/package.nix { };
-  graylog = super.callPackage ./graylog/current/package.nix { };
+  graylog = graylog-7_1;
+  graylog-enterprise = graylog-enterprise-7_1;
   graylogPlugins = super.recurseIntoAttrs (
     super.callPackage ./graylog/plugins/package.nix { graylogPackage = graylog; }
   );
