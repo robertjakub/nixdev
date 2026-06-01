@@ -10,5 +10,6 @@
     ./graylog/module.nix
     ./graylog-forwarder/module.nix
     ./passcore/module.nix
+    ./crowdsec/module.nix
   ];
 }

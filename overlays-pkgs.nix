@@ -22,5 +22,6 @@ self: super: rec {
     super.callPackage ./graylog/plugins/package.nix { graylogPackage = graylog; }
   );
   passcore = super.callPackage ./passcore/package.nix { };
+  crowdsec = super.callPackage ./crowdsec/package.nix { };
 
 }
