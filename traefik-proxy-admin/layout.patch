@@ -1,0 +1,27 @@
+diff -Naur traefik-proxy-admin-0.2.2.orig/app/layout.tsx traefik-proxy-admin-0.2.2/app/layout.tsx
+--- traefik-proxy-admin-0.2.2.orig/app/layout.tsx	2025-12-12 10:11:08.000000000 +0100
++++ traefik-proxy-admin-0.2.2/app/layout.tsx	2026-06-03 18:00:40.278376706 +0200
+@@ -1,16 +1,16 @@
+ import type { Metadata } from "next";
+-import { Geist, Geist_Mono } from "next/font/google";
++import localFont from "next/font/local";
+ import "./globals.css";
+ import { ThemeProvider } from "@/components/theme-provider";
+ 
+-const geistSans = Geist({
+-  variable: "--font-geist-sans",
+-  subsets: ["latin"],
++const geistSans = localFont({
++  src: "./geist.woff2",
++  variable: "--font-geist-sans"
+ });
+ 
+-const geistMono = Geist_Mono({
+-  variable: "--font-geist-mono",
+-  subsets: ["latin"],
++const geistMono = localFont({
++  src: "./geistmono.woff2",
++  variable: "--font-geist-mono"
+ });
+ 
+ export const metadata: Metadata = {
