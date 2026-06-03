@@ -23,5 +23,5 @@ self: super: rec {
   );
   passcore = super.callPackage ./passcore/package.nix { };
   crowdsec = super.callPackage ./crowdsec/package.nix { };
-  traefik-proxy-admin = super.callPackage ./ttraefik-proxy-admin/package.nix { };
+  traefik-proxy-admin = super.callPackage ./traefik-proxy-admin/package.nix { };
 }
