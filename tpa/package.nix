@@ -8,6 +8,7 @@
   fetchPnpmDeps,
   stdenvNoCC,
   fetchzip,
+  makeWrapper,
   ...
 }:
 let
@@ -48,6 +49,7 @@ stdenv.mkDerivation (finalAttrs: {
     pnpmConfigHook
     pnpm_10
     nodejs_24
+    makeWrapper
   ];
 
   patches = [ ./localfonts.patch ];
@@ -80,6 +82,7 @@ stdenv.mkDerivation (finalAttrs: {
     cp -R .next/BUILD_ID $out/.next/BUILD_ID
     cp -R drizzle $out
     cp -R docs $out
+    makeWrapper "${nodejs_24}/bin/node" $out/startserver
   '';
 
   meta = {

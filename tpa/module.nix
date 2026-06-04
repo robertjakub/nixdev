@@ -2,7 +2,6 @@
   config,
   lib,
   pkgs,
-  nodejs_24,
   ...
 }:
 let
@@ -33,7 +32,7 @@ in
         shopt -s inherit_errexit
 
         DATABASE_URL=postgresql://admin:password@localhost:5432/traefik_share2 \
-        ${nodejs_24}/bin/node ${cfg.package}/server.js
+        ${cfg.package}/startserver  ${cfg.package}/server.js
       '';
     };
   };
