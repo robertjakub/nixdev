@@ -85,6 +85,7 @@ in
         set -eou pipefail
         shopt -s inherit_errexit
 
+        cd ${cfg.package}/
         DATABASE_URL="$(<"$CREDENTIALS_DIRECTORY/DB_URI")" \
         ${cfg.package}/startserver  ${cfg.package}/server.js
       '';
