@@ -19,7 +19,7 @@ in
       description = "Traefik Proxy Admin";
       wantedBy = [ "multi-user.target" ];
       after = [ "network.target" ];
-      environment.NEXT_TELEMETRY_DISABLED = 1;
+      environment.NEXT_TELEMETRY_DISABLED = "1";
       path = [
         pkgs.which
         pkgs.procps
