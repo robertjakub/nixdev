@@ -64,6 +64,14 @@ in
             default = "0.0.0.0";
             description = "IP the Traefik Proxy Admin should listen on.";
           };
+          ADMIN_AUTH_PROVIDER = lib.mkOption {
+            type = lib.types.enum [
+              "local"
+              "sso"
+            ];
+            default = "local";
+            description = "TPA Admin AUTH provider.";
+          };
 
         };
       };
