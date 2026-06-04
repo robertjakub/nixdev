@@ -82,6 +82,7 @@ stdenv.mkDerivation (finalAttrs: {
     cp -R .next/BUILD_ID $out/.next/BUILD_ID
     cp -R drizzle $out
     cp -R docs $out
+    cp -R public $out
     makeWrapper "${nodejs_24}/bin/node" $out/startserver
   '';
 
