@@ -44,27 +44,32 @@ in
     };
 
     settings = lib.mkOption {
-      type =
-        with lib.types;
-        (attrsOf (oneOf [
-          bool
-          int
-          str
-          port
-        ]));
+      type = lib.types.submodule {
+        freeformType =
+          with lib.types;
+          (attrsOf (oneOf [
+            bool
+            int
+            str
+            port
+          ]));
+        options = {
+          PORT = lib.mkOption {
+            type = lib.types.port;
+            default = 4321;
+            description = "Port the Traefik Proxy Admin should listen on.";
+          };
+          HOSTNAME = lib.mkOption {
+            type = lib.types.str;
+            default = "0.0.0.0";
+            description = "IP the Traefik Proxy Admin should listen on.";
+          };
+
+        };
+      };
       description = ''
         Traefik Proxy Admin environment variables.
       '';
-      PORT = lib.mkOption {
-        type = lib.types.port;
-        default = 4321;
-        description = "Port the Traefik Proxy Admin should listen on.";
-      };
-      HOSTNAME = lib.mkOption {
-        type = lib.types.str;
-        default = "0.0.0.0";
-        description = "IP the Traefik Proxy Admin should listen on.";
-      };
     };
   };
 
