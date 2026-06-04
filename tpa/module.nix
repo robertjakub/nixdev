@@ -72,10 +72,10 @@ in
         HOSTNAME = toString cfg.settings.bind;
         # KEEP_ALIVE_TIMEOUT = "10";
       };
-      EnvironmentFile = lib.optional (cfg.environmentFile != null) cfg.environmentFile;
       startLimitIntervalSec = 60;
       startLimitBurst = 3;
       serviceConfig = {
+        EnvironmentFile = lib.optional (cfg.environmentFile != null) cfg.environmentFile;
         LoadCredential = [ "DB_URI:${cfg.databaseURIFile}" ];
         StateDirectory = "traefik-proxy-admin";
         Restart = "on-failure";
