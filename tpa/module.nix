@@ -6,6 +6,7 @@
 }:
 let
   cfg = config.services.tpa;
+  tpa-env = pkgs.writeText "tpa-env" (lib.generators.toKeyValue { } cfg.settings);
 in
 {
   options.services.tpa = {
@@ -42,13 +43,24 @@ in
       description = "User account under which Traefik Proxy Admin runs.";
     };
 
-    settings = {
-      port = lib.mkOption {
+    settings = lib.mkOption {
+      type =
+        with lib.types;
+        (attrsOf (oneOf [
+          bool
+          int
+          str
+          port
+        ]));
+      description = ''
+        Traefik Proxy Admin environment variables.
+      '';
+      PORT = lib.mkOption {
         type = lib.types.port;
         default = 4321;
         description = "Port the Traefik Proxy Admin should listen on.";
       };
-      bind = lib.mkOption {
+      HOSTNAME = lib.mkOption {
         type = lib.types.str;
         default = "0.0.0.0";
         description = "IP the Traefik Proxy Admin should listen on.";
@@ -76,14 +88,14 @@ in
       after = [ "network.target" ];
       environment = {
         NEXT_TELEMETRY_DISABLED = "1";
-        PORT = toString cfg.settings.port;
-        HOSTNAME = toString cfg.settings.bind;
-        # KEEP_ALIVE_TIMEOUT = "10";
       };
       startLimitIntervalSec = 60;
       startLimitBurst = 3;
       serviceConfig = {
-        EnvironmentFile = lib.optional (cfg.environmentFile != null) cfg.environmentFile;
+        EnvironmentFile = [
+          (lib.optional (cfg.environmentFile != null) cfg.environmentFile)
+          tpa-env
+        ];
         LoadCredential = [
           "DB_URI:${cfg.databaseURIFile}"
           "ADMIN_SECRET:${cfg.adminAuthSecretFile}"
