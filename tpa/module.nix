@@ -9,7 +9,7 @@ let
   cfg = config.services.tpa;
 in
 {
-  options.services.graylog = {
+  options.services.tpa = {
     enable = lib.mkEnableOption "Traefik Proxy Admin.";
     package = lib.mkPackageOption pkgs "traefik-proxy-admin" { };
   };
