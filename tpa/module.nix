@@ -28,6 +28,14 @@ in
       '';
     };
 
+    adminAuthSecretFile = {
+      type = lib.types.path;
+      description = ''
+        Path to a file that contains the random generated admin secret.
+        Generate with: openssl rand -base64 48
+      '';
+    };
+
     user = lib.mkOption {
       type = lib.types.str;
       default = "tpa";
@@ -76,7 +84,10 @@ in
       startLimitBurst = 3;
       serviceConfig = {
         EnvironmentFile = lib.optional (cfg.environmentFile != null) cfg.environmentFile;
-        LoadCredential = [ "DB_URI:${cfg.databaseURIFile}" ];
+        LoadCredential = [
+          "DB_URI:${cfg.databaseURIFile}"
+          "ADMIN_SECRET:${cfg.adminAuthSecretFile}"
+        ];
         StateDirectory = "traefik-proxy-admin";
         Restart = "on-failure";
         User = "${cfg.user}";
@@ -86,6 +97,7 @@ in
         shopt -s inherit_errexit
 
         cd ${cfg.package}/
+        ADMIN_AUTH_SECRET="$(<"$CREDENTIALS_DIRECTORY/ADMIN_SECRET")" \
         DATABASE_URL="$(<"$CREDENTIALS_DIRECTORY/DB_URI")" \
         ${cfg.package}/startserver  ${cfg.package}/server.js
       '';
