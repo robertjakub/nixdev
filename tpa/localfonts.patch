@@ -1,0 +1,26 @@
+--- a/src/app/layout.tsx	2026-06-03 17:34:38.000000000 +0200
++++ b/src/app/layout.tsx	2026-06-04 09:56:09.006901753 +0200
+@@ -1,16 +1,16 @@
+ import type { Metadata } from "next";
+-import { Geist, Geist_Mono } from "next/font/google";
++import localFont from "next/font/local";
+ import "./globals.css";
+ import { ThemeProvider } from "@/components/theme-provider";
+ 
+-const geistSans = Geist({
+-  variable: "--font-geist-sans",
+-  subsets: ["latin"],
++const geistSans = localFont({
++  src: "./geist.woff2",
++  variable: "--font-geist-sans"
+ });
+ 
+-const geistMono = Geist_Mono({
+-  variable: "--font-geist-mono",
+-  subsets: ["latin"],
++const geistMono = localFont({
++  src: "./geistmono.woff2",
++  variable: "--font-geist-mono"
+ });
+ 
+ export const metadata: Metadata = {

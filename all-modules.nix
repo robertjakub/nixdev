@@ -11,5 +11,6 @@
     ./graylog-forwarder/module.nix
     ./passcore/module.nix
     ./crowdsec/module.nix
+    ./tpa/module.nix
   ];
 }
