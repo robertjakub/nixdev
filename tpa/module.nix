@@ -72,6 +72,22 @@ in
             default = "local";
             description = "TPA Admin AUTH provider.";
           };
+          ADMIN_AUTH_PROVIDER = lib.mkOption {
+            type = lib.types.enum [
+              "local"
+              "sso"
+            ];
+            default = "local";
+            description = "TPA Admin AUTH provider.";
+          };
+          ADMIN_COOKIE_SECURE = lib.mkOption {
+            type = lib.types.enum [
+              "true"
+              "false"
+            ];
+            default = "true";
+            description = "TPA Cookie Secure.";
+          };
 
         };
       };
