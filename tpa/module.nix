@@ -28,7 +28,7 @@ in
       '';
     };
 
-    adminAuthSecretFile = {
+    adminAuthSecretFile = lib.mkOption {
       type = lib.types.path;
       description = ''
         Path to a file that contains the random generated admin secret.
