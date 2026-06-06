@@ -3,7 +3,7 @@
   stdenv,
   fetchFromGitHub,
   pnpm_10,
-  nodejs_24,
+  nodejs_26,
   pnpmConfigHook,
   fetchPnpmDeps,
   stdenvNoCC,
@@ -48,9 +48,11 @@ stdenv.mkDerivation (finalAttrs: {
   nativeBuildInputs = [
     pnpmConfigHook
     pnpm_10
-    nodejs_24
+    nodejs_26
     makeWrapper
   ];
+
+  __noChroot = stdenv.hostPlatform.isDarwin;
 
   patches = [ ./localfonts.patch ];
 
@@ -75,23 +77,25 @@ stdenv.mkDerivation (finalAttrs: {
   installPhase = ''
     mkdir $out
     rm -f .next/standalone/node_modules/.pnpm/node_modules/semver
-    cp -R .next/standalone/server.js $out
-    cp -R .next/standalone/node_modules $out
-    cp -R .next/standalone/.next $out
-    cp -R .next/static $out/.next
-    cp -R .next/BUILD_ID $out/.next/BUILD_ID
-    cp -R drizzle $out
-    cp -R docs $out
-    cp -R public $out
-    makeWrapper "${nodejs_24}/bin/node" $out/startserver
+    cp -r .next/standalone/server.js $out
+    cp -r .next/standalone/node_modules $out
+    cp -r .next/standalone/.next $out
+    cp -r .next/static $out/.next
+    cp -r .next/BUILD_ID $out/.next/BUILD_ID
+    cp -r drizzle $out
+    cp -r docs $out
+    cp -r public $out
+    makeWrapper "${nodejs_26}/bin/node" $out/startserver
   '';
 
   meta = {
     description = "Traefik Dynamic Proxy Admin Panel";
-    homepage = "https://github.com/Janhouse/traefik-proxy-admin";
-    # license = lib.licenses.agpl3;
+    homepage = "https://github.com/I-am-PUID-0/traefik-proxy-admin";
+    maintainers = with lib.maintainers; [ robertjakub ];
+    license = with lib.licenses; [
+      gpl3 # GPL or AGPL?
+      ofl # Geist font
+    ];
     platforms = lib.platforms.all;
-    # mainProgram = "vite";
   };
-
 })
