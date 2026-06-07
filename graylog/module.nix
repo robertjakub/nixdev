@@ -152,7 +152,7 @@ in
         See http://docs.mongodb.org/manual/reference/connection-string/ for details.
       '';
     };
-    mongodbUri = lib.mkOption {
+    mongodbUriSecret = lib.mkOption {
       type = lib.types.path;
       internal = true;
       default = if cfg.enableLocalMongoDB then mongodb-uri else cfg.mongodbUriFile;
@@ -253,7 +253,7 @@ in
         LoadCredential = [
           "passwordSecret:${cfg.passwordSecretFile}"
           "rootSha2:${cfg.rootPasswordSha2File}"
-          "mongodburi:${cfg.mongodbUri}"
+          "mongodburi:${cfg.mongodbUriSecret}"
         ];
         User = "${cfg.user}";
         StateDirectory = "graylog";
