@@ -48,7 +48,7 @@ in
       };
       MongoDBURIFile = lib.mkOption {
         type = lib.types.path;
-        default = mongodb-uri;
+        apply = assertStringPath "MongoDBURIFile";
         description = ''
           Path to a file that contains the MongoDB connection string.
           See http://docs.mongodb.org/manual/reference/connection-string/ for details.
@@ -61,6 +61,13 @@ in
           An optional path to an environment file that will be used in the service.
         '';
         example = "secrets.env";
+      };
+
+      MongoDBURI = lib.mkOption {
+        type = lib.types.path;
+        internal = true;
+        default = if cfg.enableLocalDB then mongodb-uri else cfg.MongoDBURIFile;
+        description = "Internal MongoDB connection string.";
       };
 
       settings = lib.mkOption {
@@ -108,16 +115,6 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    assertions = [
-      {
-        assertion = !((cfg.enableLocalDB != true) || (!lib.isStorePath cfg.MongoDBURIFile));
-        message = ''
-          <option>services.checkmate-server.MongoDBURIFile</option> points to
-          a file in the Nix store. You should use a quoted absolute path to prevent this.
-        '';
-      }
-    ];
-
     services.mongodb = lib.mkIf cfg.enableLocalDB { enable = true; };
 
     systemd.services.checkmate-backend = {
@@ -133,7 +130,7 @@ in
         ];
         LoadCredential = [
           "JWT_SECRET:${cfg.settings.JWTSecretFile}"
-          "MONGO_DB:${cfg.MongoDBURIFile}"
+          "MONGO_DB:${cfg.MongoDBURI}"
         ];
         PrivateDevices = true;
         LimitCORE = 0;
