@@ -7,6 +7,8 @@
 let
   cfg = config.services.graylog;
 
+  mongodb-uri = pkgs.writeText "graylog-mongodburi" "mongodb://127.0.0.1:27017/graylog";
+
   settings-ini = pkgs.writeText "graylog.conf" (
     lib.generators.toINIWithGlobalSection { listsAsDuplicateKeys = true; } {
       globalSection = cfg.settings;
@@ -143,6 +145,20 @@ in
       '';
     };
 
+    mongodbUriFile = lib.mkOption {
+      type = lib.types.path;
+      description = ''
+        Path to a file that contains the MongoDB connection string.
+        See http://docs.mongodb.org/manual/reference/connection-string/ for details.
+      '';
+    };
+    mongodbUri = lib.mkOption {
+      type = lib.types.path;
+      internal = true;
+      default = if cfg.enableLocalMongoDB then mongodb-uri else cfg.mongodbUriFile;
+      description = "Internal MongoDB connection string.";
+    };
+
     mutablePlugins = lib.mkEnableOption "Whether custom plugins can be installed, updated or uninstalled manually.";
 
     plugins = lib.mkOption {
@@ -177,6 +193,11 @@ in
       "graylog"
       "rootPasswordSha2"
     ] "Please instead use `services.graylog.rootPasswordSha2File`")
+    (lib.mkRemovedOptionModule [
+      "services"
+      "graylog"
+      "mongodbUri"
+    ] "Please instead use `services.graylog.mongodbUriFile`")
     (lib.mkRenamedOptionModule
       [ "services" "graylog" "dataDir" ]
       [ "services" "graylog" "settings" "data_dir" ]
@@ -184,10 +205,6 @@ in
     (lib.mkRenamedOptionModule
       [ "services" "graylog" "messageJournalDir" ]
       [ "services" "graylog" "settings" "message_journal_dir" ]
-    )
-    (lib.mkRenamedOptionModule
-      [ "services" "graylog" "mongodbUri" ]
-      [ "services" "graylog" "settings" "mongodb_uri" ]
     )
     (lib.mkRemovedOptionModule [
       "services"
@@ -197,9 +214,7 @@ in
   ];
 
   config = lib.mkIf cfg.enable {
-    services.mongodb = lib.mkIf cfg.enableLocalMongoDB {
-      enable = true;
-    };
+    services.mongodb = lib.mkIf cfg.enableLocalMongoDB { enable = true; };
 
     users = {
       users = lib.mkIf (cfg.user == "graylog") {
@@ -238,6 +253,7 @@ in
         LoadCredential = [
           "passwordSecret:${cfg.passwordSecretFile}"
           "rootSha2:${cfg.rootPasswordSha2File}"
+          "mongodburi:${cfg.mongodbUri}"
         ];
         User = "${cfg.user}";
         StateDirectory = "graylog";
@@ -246,6 +262,7 @@ in
         set -eou pipefail
         shopt -s inherit_errexit
 
+        GRAYLOG_MONGODB_URI="$(<"$CREDENTIALS_DIRECTORY/mongodburi")" \
         GRAYLOG_PASSWORD_SECRET="$(<"$CREDENTIALS_DIRECTORY/passwordSecret")" \
         GRAYLOG_ROOT_PASSWORD_SHA2="$(<"$CREDENTIALS_DIRECTORY/rootSha2")" \
         ${cfg.package}/bin/graylogctl run
