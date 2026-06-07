@@ -156,11 +156,11 @@ in
         tryFiles = "$uri $uri/ /index.html";
       };
       locations."/api/" = {
-        proxyPass = "http://127.0.0.1:${toString cfg.settings.port}/api/";
+        proxyPass = "http://127.0.0.1:${toString cfg.settings.PORT}/api/";
         proxyWebsockets = true;
       };
       locations."/api-docs/" = {
-        proxyPass = "http://127.0.0.1:${toString cfg.settings.port}/api-docs/";
+        proxyPass = "http://127.0.0.1:${toString cfg.settings.PORT}/api-docs/";
         proxyWebsockets = true;
       };
     };
