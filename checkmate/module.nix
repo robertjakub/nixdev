@@ -129,7 +129,7 @@ in
           checkmate-env
         ];
         LoadCredential = [
-          "JWT_SECRET:${cfg.settings.JWTSecretFile}"
+          "JWT_SECRET:${cfg.JWTSecretFile}"
           "MONGO_DB:${cfg.MongoDBURI}"
         ];
         PrivateDevices = true;
