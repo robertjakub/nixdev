@@ -13,11 +13,8 @@
         enable = true;
         vhostName = "default";
         enableLocalDB = true;
-        settings = {
-          logLevel = "info";
-          clientHost = "http://127.0.0.1";
-          JWTSecretFile = "/run/checkmate-jwt";
-        };
+        JWTSecretFile = "/run/checkmate-jwt";
+        settings.CLIENT_HOST = "http://127.0.0.1";
       };
 
       services.nginx = {
@@ -36,9 +33,9 @@
 
     machine.wait_until_succeeds("journalctl -o cat -u checkmate-backend.service | grep 'Server started on port:52345'")
 
+    machine.succeed("curl -sSfN http://127.0.0.1/ | grep \"<title>Checkmate</title>\"")
     machine.succeed("curl -sSfN http://127.0.0.1:52345/ | grep \"<title>Checkmate</title>\"")
     machine.succeed("curl -sSfN http://127.0.0.1:52345/api-docs/ | grep \"<title>Swagger UI</title>\"")
-    machine.succeed("curl -sSfN http://127.0.0.1/ | grep \"<title>Checkmate</title>\"")
     machine.succeed("curl -sSfN http://127.0.0.1/api-docs/ | grep \"<title>Swagger UI</title>\"")
 
     machine.shutdown()
