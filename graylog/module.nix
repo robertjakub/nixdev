@@ -249,6 +249,11 @@ in
         	ln -sf ${cfg.package}/plugin/$plugins ${cfg.settings.plugin_dir}/$plugins || true
         done
       '';
+      preStop = lib.optionalString (cfg.mutablePlugins) ''
+        for plugins in `ls ${cfg.package}/plugin/`; do
+        	rm -f ${cfg.settings.plugin_dir}/$plugins || true
+        done
+      '';
       serviceConfig = {
         LoadCredential = [
           "passwordSecret:${cfg.passwordSecretFile}"
