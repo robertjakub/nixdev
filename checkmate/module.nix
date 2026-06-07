@@ -112,7 +112,6 @@ in
       {
         assertion = !((cfg.enableLocalDB != true) || (!lib.isStorePath cfg.MongoDBURIFile));
         message = ''
-          ${toString (cfg.enableLocalDB != true)} versus ${cfg.MongoDBURIFile}
           <option>services.checkmate-server.MongoDBURIFile</option> points to
           a file in the Nix store. You should use a quoted absolute path to prevent this.
         '';
