@@ -6,19 +6,12 @@
 }:
 let
   cfg = config.services.checkmate-server;
-
-  inherit (lib)
-    mkEnableOption
-    mkPackageOption
-    mkIf
-    mkOption
-    types
-    isPath
-    ;
+  checkmate-env = pkgs.writeText "checkmate-env" (lib.generators.toKeyValue { } cfg.settings);
+  mongodb-uri = pkgs.writeText "checkmate-mongodburi" "mongodb://127.0.0.1:27017/uptime_db";
 
   assertStringPath =
     optionName: value:
-    if isPath value then
+    if lib.isPath value then
       throw ''
         services.checkmate-server.${optionName}:
           ${toString value}
@@ -31,83 +24,97 @@ in
 {
   options = {
     services.checkmate-server = {
-      enable = mkEnableOption "the Checkmate monitoring server";
+      enable = lib.mkEnableOption "the Checkmate monitoring server";
+      package = lib.mkPackageOption pkgs "checkmate-server" { };
 
-      package = mkPackageOption pkgs "checkmate-server" { };
-
-      vhostName = mkOption {
-        type = types.str;
-        default = "checkmate-server";
+      vhostName = lib.mkOption {
+        type = lib.types.str;
+        default = "checkmate-vhost";
         description = "Name of the nginx vhost.";
       };
 
-      enableLocalDB = mkEnableOption "a local MongoDB instance";
-
-      settings = {
-        clientHost = mkOption {
-          type = types.str;
-          default = "http://127.0.0.1";
-          description = "Frontend Host URI.";
-        };
-
-        origin = mkOption {
-          type = types.str;
-          default = "localhost";
-          description = ''
-            Origin where requests to server originate from, for CORS purposes.
-          '';
-        };
-
-        port = mkOption {
-          type = types.port;
-          default = 52345;
-          description = "Port the Checkmate backend should listen on.";
-        };
-
-        logLevel = mkOption {
-          type = types.enum [
-            "debug"
-            "info"
-            "warn"
-            "error"
-          ];
-          default = "info";
-          description = "Debug level, can be one of: debug, info, warn, error.";
-        };
-
-        tokenTTL = mkOption {
-          type = types.str;
-          default = "1h";
-          description = ''
-            Time for token to live in vercel/ms format, see: https://github.com/vercel/ms.
-          '';
-        };
-
-        JWTSecretFile = mkOption {
-          type = types.path;
-          apply = assertStringPath "settings.JWTSecretFile";
-          description = ''
-            Path to a file that contains the secret to sign web requests using JSON Web Tokens.
-          '';
-        };
-      };
-
-      mongodbUri = mkOption {
-        type = types.str;
-        default = "mongodb://127.0.0.1:27017/uptime_db";
+      enableLocalDB = lib.mkEnableOption "a local MongoDB instance";
+      JWTSecretFile = lib.mkOption {
+        type = lib.types.path;
+        apply = assertStringPath "JWTSecretFile";
         description = ''
-          MongoDB connection string.
+          Path to a file that contains the secret to sign web requests using JSON Web Tokens.
+        '';
+      };
+      MongoDBURIFile = lib.mkOption {
+        type = lib.types.path;
+        default = mongodb-uri;
+        description = ''
+          Path to a file that contains the MongoDB connection string.
           See http://docs.mongodb.org/manual/reference/connection-string/ for details.
         '';
+      };
+      environmentFile = lib.mkOption {
+        type = lib.types.nullOr lib.types.path;
+        default = null;
+        description = ''
+          An optional path to an environment file that will be used in the service.
+        '';
+        example = "secrets.env";
+      };
+
+      settings = {
+        type = lib.types.submodule {
+          freeformType = with lib.types; (attrsOf (oneOf [ anything ]));
+          options = {
+            CLIENT_HOST = lib.mkOption {
+              type = lib.types.str;
+              default = "http://127.0.0.1";
+              description = "Frontend Host URI.";
+            };
+            LOG_LEVEL = lib.mkOption {
+              type = lib.types.enum [
+                "debug"
+                "info"
+                "warn"
+                "error"
+              ];
+              default = "info";
+              description = "Debug level, can be one of: debug, info, warn, error.";
+            };
+            ORIGIN = lib.mkOption {
+              type = lib.types.str;
+              default = "localhost";
+              description = ''
+                Origin where requests to server originate from, for CORS purposes.
+              '';
+            };
+            PORT = lib.mkOption {
+              type = lib.types.port;
+              default = 52345;
+              description = "Port the Checkmate backend should listen on.";
+            };
+            TOKEN_TTL = lib.mkOption {
+              type = lib.types.str;
+              default = "1h";
+              description = ''
+                Time for token to live in vercel/ms format, see: https://github.com/vercel/ms.
+              '';
+            };
+          };
+        };
       };
     };
   };
 
-  config = mkIf cfg.enable {
+  config = lib.mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = (lib.isStorePath cfg.MongoDBURIFile) && (!cfg.enableLocalDB);
+        message = ''
+          <option>services.checkmate-server.MongoDBURIFile</option> points to
+          a file in the Nix store. You should use a quoted absolute
+          path to prevent this.
+        '';
+      }
+    ];
 
-    services.mongodb = mkIf cfg.enableLocalDB {
-      enable = true;
-    };
+    services.mongodb = lib.mkIf cfg.enableLocalDB { enable = true; };
 
     systemd.services.checkmate-backend = {
       description = "Checkmate backend daemon";
@@ -115,16 +122,15 @@ in
       after = [ "network.target" ] ++ lib.optionals cfg.enableLocalDB [ "mongodb.service" ];
       startLimitIntervalSec = 60;
       startLimitBurst = 3;
-      environment = {
-        CLIENT_HOST = cfg.settings.clientHost;
-        LOG_LEVEL = cfg.settings.logLevel;
-        DB_CONNECTION_STRING = cfg.mongodbUri;
-        ORIGIN = cfg.settings.origin;
-        TOKEN_TTL = cfg.settings.tokenTTL;
-        PORT = toString cfg.settings.port;
-      };
       serviceConfig = {
-        LoadCredential = [ "JWT_SECRET:${cfg.settings.JWTSecretFile}" ];
+        EnvironmentFile = [
+          (lib.optional (cfg.environmentFile != null) cfg.environmentFile)
+          checkmate-env
+        ];
+        LoadCredential = [
+          "JWT_SECRET:${cfg.settings.JWTSecretFile}"
+          "MONGO_DB:${cfg.MongoDBURIFile}"
+        ];
         PrivateDevices = true;
         LimitCORE = 0;
         KillSignal = "SIGINT";
@@ -136,6 +142,7 @@ in
         set -eou pipefail
         shopt -s inherit_errexit
 
+        DB_CONNECTION_STRING="$(<"$CREDENTIALS_DIRECTORY/MONGO_DB")" \
         JWT_SECRET="$(<"$CREDENTIALS_DIRECTORY/JWT_SECRET")" \
         ${cfg.package}/startserver ${cfg.package}/backend/index.js
       '';
