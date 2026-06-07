@@ -33,7 +33,12 @@ in
         description = "Name of the nginx vhost.";
       };
 
-      enableLocalDB = lib.mkEnableOption "a local MongoDB instance";
+      enableLocalDB = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Whether to enable a local MongoDB instance";
+      };
+
       JWTSecretFile = lib.mkOption {
         type = lib.types.path;
         apply = assertStringPath "JWTSecretFile";
