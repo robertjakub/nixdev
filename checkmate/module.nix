@@ -105,11 +105,10 @@ in
   config = lib.mkIf cfg.enable {
     assertions = [
       {
-        assertion = (lib.isStorePath cfg.MongoDBURIFile) && (!cfg.enableLocalDB);
+        assertion = (!cfg.enableLocalDB) && (lib.isStorePath cfg.MongoDBURIFile)
         message = ''
           <option>services.checkmate-server.MongoDBURIFile</option> points to
-          a file in the Nix store. You should use a quoted absolute
-          path to prevent this.
+          a file in the Nix store. You should use a quoted absolute path to prevent this.
         '';
       }
     ];
