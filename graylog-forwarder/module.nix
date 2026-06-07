@@ -28,13 +28,29 @@ in
             default = "/var/lib/graylog-forwarder/server/node-id";
             description = "Path of the file containing the graylog-forwarder node-id.";
           };
-
           data_dir = lib.mkOption {
             type = lib.types.str;
             default = "/var/lib/graylog-forwarder/data";
             description = "Directory used to store Graylog server state.";
           };
-
+          forwarder_message_transmission_port = lib.mkOption {
+            type = lib.types.port;
+            default = 13301;
+            description = "Message Transmission Port.";
+          };
+          forwarder_configuration_port = lib.mkOption {
+            type = lib.types.port;
+            default = 13302;
+            description = "Configuration Port.";
+          };
+          forwarder_grpc_enable_tls = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+          };
+          forwarder_server_hostname = lib.mkOption {
+            type = lib.types.str;
+            example = "graylog.example.com";
+          };
         };
       };
       example = { };
