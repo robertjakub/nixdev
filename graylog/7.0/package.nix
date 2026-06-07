@@ -18,11 +18,11 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "graylog_${lib.versions.majorMinor finalAttrs.version}";
-  version = "7.0.6";
+  version = "7.0.8";
 
   src = fetchurl {
     url = "https://packages.graylog2.org/releases/graylog/graylog-${finalAttrs.version}.tgz";
-    hash = "sha256-x4V5Bfw2QluWL0UrRa0nPZ2X0HbXsZ8AzbbRP5ZxV3o=";
+    hash = "sha256-UKxeydZrEcH/D6dBwZINh6I99ddpn9Akloyob/9FdwM=";
   };
 
   dontBuild = true;
