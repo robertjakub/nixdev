@@ -58,7 +58,7 @@ in
         example = "secrets.env";
       };
 
-      settings = {
+      settings = lib.mkOption {
         type = lib.types.submodule {
           freeformType = with lib.types; (attrsOf (oneOf [ anything ]));
           options = {
