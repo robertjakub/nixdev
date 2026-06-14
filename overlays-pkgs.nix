@@ -23,6 +23,9 @@ self: super: rec {
   graylog-enterprise-7_1 = super.callPackage ./graylog-enterprise/7.1/package.nix { };
   graylog-enterprise = graylog-enterprise-7_1;
 
+  graylog-datanode-7_1 = super.callPackage ./graylog-datanode/7.1/package.nix { };
+  graylog-datanode = graylog-datanode-7_1;
+
   graylogPlugins = super.recurseIntoAttrs (
     super.callPackage ./graylog/plugins/package.nix { graylogPackage = graylog; }
   );

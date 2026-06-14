@@ -12,5 +12,6 @@
     ./passcore/module.nix
     ./crowdsec/module.nix
     ./tpa/module.nix
+    # ./graylog-datanode/module.nix
   ];
 }
