@@ -13,11 +13,18 @@ let
       globalSection = cfg.settings;
     }
   );
+
+  override-ini = pkgs.writeText "graylog-datanode-overrides.conf" (
+    lib.generators.toINIWithGlobalSection { listsAsDuplicateKeys = true; } {
+      globalSection = cfg.overrides;
+    }
+  );
+
 in
 {
   options.services.graylog-datanode = {
     enable = lib.mkEnableOption "Graylog Datanode, a log management solution.";
-    package = lib.mkPackageOption pkgs "graylog-datanode";
+    package = lib.mkPackageOption pkgs "graylog-datanode" { };
 
     enableLocalMongoDB = lib.mkEnableOption "a local MongoDB instance.";
 
@@ -44,10 +51,55 @@ in
             default = "/etc/graylog/datanode";
           };
 
+          datanode_http_port = lib.mkOption {
+            type = lib.types.port;
+            default = 8999;
+          };
+
+          opensearch_http_port = lib.mkOption {
+            type = lib.types.port;
+            default = 9200;
+          };
+
+          opensearch_transport_port = lib.mkOption {
+            type = lib.types.port;
+            default = 9300;
+          };
+
+          opensearch_config_location = lib.mkOption {
+            type = lib.types.str;
+            internal = true;
+            default = "${cfg.opensearch_datadir}/config";
+          };
+
+          opensearch_data_location = lib.mkOption {
+            type = lib.types.str;
+            internal = true;
+            default = "${cfg.opensearch_datadir}/data";
+          };
+
+          opensearch_logs_location = lib.mkOption {
+            type = lib.types.str;
+            internal = true;
+            default = "${cfg.opensearch_datadir}/logs";
+          };
+
+          opensearch_heap = lib.mkOption {
+            type = lib.types.str;
+            internal = true;
+            default = "2g";
+          };
+
           opensearch_location = lib.mkOption {
             type = lib.types.str;
             internal = true;
             default = "${cfg.package}/dist";
+          };
+
+          opensearch_configuration_overrides_file = lib.mkOption {
+            type = lib.types.str;
+            internal = true;
+            default = "${cfg.settings.config_location}/override.conf";
           };
 
         };
@@ -62,6 +114,11 @@ in
         For a complete list of available options, see:
         https://go2docs.graylog.org/current/setting_up_graylog/server_configuration_settings_reference.htm
       '';
+    };
+
+    overrides = lib.mkOption {
+      default = { };
+      type = lib.types.submodule { freeformType = lib.types.anything; };
     };
 
     user = lib.mkOption {
@@ -108,6 +165,13 @@ in
       default = if cfg.enableLocalMongoDB then mongodb-uri else cfg.mongodbUriFile;
       description = "Internal MongoDB connection string.";
     };
+
+    opensearch_datadir = lib.mkOption {
+      type = lib.types.str;
+      internal = true;
+      default = "/var/lib/graylog-datanode/opensearch";
+    };
+
   };
 
   config = lib.mkIf cfg.enable {
@@ -127,9 +191,14 @@ in
     systemd.tmpfiles.rules = [
       "d /etc/graylog/datanode - ${cfg.user} - - -"
       "d '${dirOf cfg.settings.node_id_file}' 0700 ${cfg.user} - - -"
+      "d '${cfg.opensearch_datadir}' 0700 ${cfg.user} - - -"
+      "d '${cfg.settings.opensearch_config_location}' 0700 ${cfg.user} - - -"
+      "d '${cfg.settings.opensearch_data_location}' 0700 ${cfg.user} - - -"
+      "d '${cfg.settings.opensearch_logs_location}' 0700 ${cfg.user} - - -"
     ];
 
     environment.etc."graylog/datanode/datanode.conf".source = "${settings-ini}";
+    environment.etc."graylog/datanode/override.conf".source = "${override-ini}";
     environment.etc."graylog/datanode/jvm.options".source = "${cfg.package}/config/jvm.options";
     environment.etc."graylog/datanode/log4j2.xml".source = "${cfg.package}/config/log4j2.xml";
 
@@ -151,9 +220,9 @@ in
         set -eou pipefail
         shopt -s inherit_errexit
 
-        GRAYLOG_MONGODB_URI="$(<"$CREDENTIALS_DIRECTORY/mongodburi")" \
-        GRAYLOG_PASSWORD_SECRET="$(<"$CREDENTIALS_DIRECTORY/passwordSecret")" \
-        GRAYLOG_ROOT_PASSWORD_SHA2="$(<"$CREDENTIALS_DIRECTORY/rootSha2")" \
+        GRAYLOG_DATANODE_MONGODB_URI="$(<"$CREDENTIALS_DIRECTORY/mongodburi")" \
+        GRAYLOG_DATANODE_PASSWORD_SECRET="$(<"$CREDENTIALS_DIRECTORY/passwordSecret")" \
+        GRAYLOG_DATANODE_ROOT_PASSWORD_SHA2="$(<"$CREDENTIALS_DIRECTORY/rootSha2")" \
         ${cfg.package}/bin/graylog-datanode datanode -f /etc/graylog/datanode/datanode.conf
       '';
     };
