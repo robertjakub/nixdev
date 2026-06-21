@@ -6,13 +6,15 @@ self: super: rec {
   checkmate-capture = super.callPackage ./checkmate-capture/package.nix { };
   filebeat-9 = (super.callPackages ./beats/9.x.nix { }).filebeat;
   flame = super.callPackage ./flame/package.nix { };
-  graylog-sidecar = super.callPackage ./graylog-sidecar/package.nix { };
   heartbeat-9 = (super.callPackages ./beats/9.x.nix { }).heartbeat;
   metricbeat-9 = (super.callPackages ./beats/9.x.nix { }).metricbeat;
   packetbeat-9 = (super.callPackages ./beats/9.x.nix { }).packetbeat;
 
   graylog-forwarder-7 = super.callPackage ./graylog-forwarder/7/package.nix { };
   graylog-forwarder = graylog-forwarder-7;
+
+  graylog-collector = super.callPackage ./graylog-collector/package.nix { };
+  graylog-sidecar = super.callPackage ./graylog-sidecar/package.nix { };
 
   graylog-6_3 = super.callPackage ./graylog/6.3/package.nix { };
   graylog-7_0 = super.callPackage ./graylog/7.0/package.nix { };
