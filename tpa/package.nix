@@ -6,33 +6,12 @@
   nodejs_26,
   pnpmConfigHook,
   fetchPnpmDeps,
-  stdenvNoCC,
-  fetchzip,
   makeWrapper,
   ...
 }:
-let
-  geistFont = stdenvNoCC.mkDerivation (finalAttrs: {
-    pname = "geist-webfont";
-    version = "1.7.2";
-    srcs = [
-      (fetchzip {
-        url = "https://github.com/vercel/geist-font/releases/download/v${finalAttrs.version}/geist-font-v${finalAttrs.version}.zip";
-        hash = "sha256-QP2PYwS/oTG0jDYdt9FGJAU8/n3yC+PJJW7WVUIyM/8=";
-      })
-    ];
-    sourceRoot = ".";
-    installPhase = ''
-      runHook preInstall
-      mkdir -p $out/
-      find . -name "*.woff2" -exec cp {} $out \;
-      runHook postInstall
-    '';
-  });
-in
 stdenv.mkDerivation (finalAttrs: {
   pname = "traefik-proxy-admin";
-  version = "1.16.0";
+  version = "1.17.0";
 
   NODE_ENV = "production";
   NEXT_TELEMETRY_DISABLED = 1;
@@ -42,7 +21,7 @@ stdenv.mkDerivation (finalAttrs: {
     owner = "I-am-PUID-0";
     repo = "traefik-proxy-admin";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-qmNJSLh3GPFP0yMViz7ocIgbP7M/yvaDNckwmz96WmU=";
+    hash = "sha256-BjGDh1CJLmAaTmxoWGEG3HeSMJiPPea+zoAR1vO+sho=";
   };
 
   nativeBuildInputs = [
@@ -54,19 +33,12 @@ stdenv.mkDerivation (finalAttrs: {
 
   __noChroot = stdenv.hostPlatform.isDarwin;
 
-  patches = [ ./localfonts.patch ];
-
   pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs) pname version src;
     pnpm = pnpm_10;
     fetcherVersion = 3;
-    hash = "sha256-AYGN/j7b6W7XJp/2TGZN6hKfnlR5HZvd1IZYomg8wnI=";
+    hash = "sha256-hViYRfpQUAx1b6vB1wqks1awAOEo5l+QFcpqAs7uNbY=";
   };
-
-  postPatch = ''
-    cp -f ${geistFont}/Geist\[wght\].woff2 src/app/geist.woff2
-    cp -f ${geistFont}/GeistMono\[wght\].woff2 src/app/geistmono.woff2
-  '';
 
   buildPhase = ''
     runHook preBuild
@@ -92,10 +64,7 @@ stdenv.mkDerivation (finalAttrs: {
     description = "Traefik Dynamic Proxy Admin Panel";
     homepage = "https://github.com/I-am-PUID-0/traefik-proxy-admin";
     maintainers = with lib.maintainers; [ robertjakub ];
-    license = with lib.licenses; [
-      gpl3 # GPL or AGPL?
-      ofl # Geist font
-    ];
+    license = with lib.licenses; [ gpl3 ];
     platforms = lib.platforms.all;
   };
 })
