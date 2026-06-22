@@ -13,5 +13,6 @@
     ./crowdsec/module.nix
     ./tpa/module.nix
     ./graylog-datanode/module.nix
+    ./graylog-collector/module.nix
   ];
 }
