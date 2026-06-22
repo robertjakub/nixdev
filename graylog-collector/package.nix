@@ -26,15 +26,15 @@ buildGoModule (finalAttrs: {
     opentelemetry-collector-builder
   ];
 
-  ldflags = [
-    "-s"
-    "-X github.com/Graylog2/collector/superv/version.version=${finalAttrs.version}-nixos"
-    "-X github.com/Graylog2/collector/superv/version.commit=f87169a"
-  ];
+  # ldflags = [
+  #   "-s"
+  #   "-X github.com/Graylog2/collector/superv/version.version=${finalAttrs.version}-nixos"
+  #   "-X github.com/Graylog2/collector/superv/version.commit=f87169a"
+  # ];
 
   postPatch = ''
     substituteInPlace Taskfile.yml \
-    	--replace-warn "sh: git rev-parse --short HEAD" "\'f87169a\'"
+    	--replace-warn "sh: git rev-parse --short HEAD" "f87169a"
      substituteInPlace builder/builder-config.yaml \
      	--replace-warn "0.1.0-SNAPSHOT" "${finalAttrs.version}-nixos"
   '';

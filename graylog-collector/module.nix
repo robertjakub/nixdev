@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  stdenv,
   ...
 }:
 let
@@ -37,6 +38,7 @@ in
           isSystemUser = true;
           group = "graylog";
           description = "Graylog server daemon user";
+          extraGroups = lib.optionals stdenv.hostPlatform.isLinux [ "systemd-journal" ];
         };
       };
       groups = lib.mkIf (cfg.user == "graylog") { graylog = { }; };
