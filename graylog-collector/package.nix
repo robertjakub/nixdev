@@ -19,7 +19,7 @@ buildGoModule (finalAttrs: {
   };
 
   # vendorHash = "";
-  vendorHash = "sha256-KLzeaFbDjCLffgqQ5pDucVuZzKdK9FlVEJ0zppekJLw=";
+  vendorHash = "sha256-FBSushPVF2nlb3xqQaVgakr+Uuio3bt+Xcgtnd49m+c=";
 
   nativeBuildInputs = [
     go-task
