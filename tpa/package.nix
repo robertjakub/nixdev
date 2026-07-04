@@ -11,7 +11,7 @@
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "traefik-proxy-admin";
-  version = "1.17.0";
+  version = "1.20.0";
 
   NODE_ENV = "production";
   NEXT_TELEMETRY_DISABLED = 1;
@@ -21,7 +21,7 @@ stdenv.mkDerivation (finalAttrs: {
     owner = "I-am-PUID-0";
     repo = "traefik-proxy-admin";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-BjGDh1CJLmAaTmxoWGEG3HeSMJiPPea+zoAR1vO+sho=";
+    hash = "sha256-+ZZ03iZg8Ih/kOTq1v6jxGk2Xtyg3W7fnBfaXJmIU/U=";
   };
 
   nativeBuildInputs = [
@@ -37,7 +37,7 @@ stdenv.mkDerivation (finalAttrs: {
     inherit (finalAttrs) pname version src;
     pnpm = pnpm_10;
     fetcherVersion = 3;
-    hash = "sha256-hViYRfpQUAx1b6vB1wqks1awAOEo5l+QFcpqAs7uNbY=";
+    hash = "sha256-1EJCdtajLquSPE1DiI/EnfMhHOLxU2k4JBVUtaZbwVI=";
   };
 
   buildPhase = ''
