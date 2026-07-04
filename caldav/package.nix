@@ -38,6 +38,10 @@ buildPythonPackage rec {
     hash = "sha256-SCqc0MVxKaHpES+NkDcaItHlkk0kCFj6kFqH8k08vdA=";
   };
 
+  patches = [
+    ./darwin-fix-test.patch
+  ];
+
   build-system = [
     hatchling
     hatch-vcs
@@ -68,13 +72,6 @@ buildPythonPackage rec {
   ];
 
   __darwinAllowLocalNetworking = true;
-
-  preCheck = ''
-    # Ensure the config sub-directory exists cleanly in the temporary home
-    mkdir -p $HOME/.config/caldav
-    echo $HOME
-    breakme
-  '';
 
   pythonImportsCheck = [ "caldav" ];
 
