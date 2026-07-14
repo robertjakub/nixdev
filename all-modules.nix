@@ -6,13 +6,13 @@
     ./checkmate/module.nix
     ./checkmate-capture/module.nix
     ./flame/module.nix
-    ./graylog-sidecar/module.nix
-    ./graylog/module.nix
-    ./graylog-forwarder/module.nix
     ./passcore/module.nix
     ./crowdsec/module.nix
     ./tpa/module.nix
-    ./graylog-datanode/module.nix
-    ./graylog-collector/module.nix
+    # ./graylog-sidecar/module.nix
+    # ./graylog/module.nix
+    # ./graylog-forwarder/module.nix
+    # ./graylog-datanode/module.nix
+    # ./graylog-collector/module.nix
   ];
 }
