@@ -5,33 +5,32 @@
   nixosTests,
   perl,
   radicale,
+  versionCheckHook,
   which,
   xandikos,
 }:
 
 python3.pkgs.buildPythonApplication (finalAttrs: {
   pname = "calendar-cli";
-  version = "1.0.1";
+  version = "1.0.3";
   pyproject = true;
 
   src = fetchFromGitHub {
-    owner = "tobixen";
+    owner = "pycalendar";
     repo = "calendar-cli";
-    rev = "v${finalAttrs.version}";
-    hash = "sha256-w35ySLnfxXZR/a7BrPLYqXs2kqkuYhh5PcgNxJqjDtE=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-5qPBHwOPW/HsmO/jBMyq6ROb23JYfJ/XLWmHwgb5kPY=";
   };
 
   postPatch = ''
     patchShebangs tests
     substituteInPlace tests/test_calendar-cli.sh \
-      --replace-fail "../bin/calendar-cli.py" "$out/bin/calendar-cli" \
-      --replace-fail "../bin/calendar-cli" "$out/bin/calendar-cli"
+      --replace-fail "../bin/calendar-cli.py" "$out/bin/calendar-cli"
   '';
 
-  __darwinAllowLocalNetworking = true;
-
   build-system = with python3.pkgs; [
-    setuptools
+    hatch-vcs
+    hatchling
   ];
 
   dependencies = with python3.pkgs; [
@@ -42,34 +41,46 @@ python3.pkgs.buildPythonApplication (finalAttrs: {
     tzlocal
     click
     six
-    urllib3
     vobject
   ];
 
   nativeCheckInputs = [
     perl
     (python3.pkgs.toPythonModule (radicale.override { inherit python3; }))
+    versionCheckHook
     which
     xandikos
   ];
 
   checkPhase = ''
     runHook preCheck
+    runHook preInstallCheck
 
     pushd tests
     ./test_calendar-cli.sh
     popd
 
     runHook postCheck
+    runHook postInstallCheck
   '';
 
   passthru.tests = {
     inherit (nixosTests) radicale;
   };
 
+  __darwinAllowLocalNetworking = true;
+
+  preCheck = ''
+    # Manually configure the loopback interface for the sandbox environment
+    export HOME=$TMPDIR
+    echo "127.0.0.1 localhost" > $TMPDIR/hosts
+    export HOSTALIASES=$TMPDIR/hosts
+  '';
+
   meta = {
+    changelog = "https://github.com/pycalendar/calendar-cli/releases/tag/${finalAttrs.src.tag}";
     description = "Simple command-line CalDav client";
-    homepage = "https://github.com/tobixen/calendar-cli";
+    homepage = "https://github.com/pycalendar/calendar-cli";
     license = lib.licenses.gpl3Plus;
     mainProgram = "calendar-cli";
     maintainers = with lib.maintainers; [ dotlambda ];
