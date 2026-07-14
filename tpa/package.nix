@@ -64,7 +64,7 @@ stdenv.mkDerivation (finalAttrs: {
     description = "Traefik Dynamic Proxy Admin Panel";
     homepage = "https://github.com/I-am-PUID-0/traefik-proxy-admin";
     maintainers = with lib.maintainers; [ robertjakub ];
-    license = with lib.licenses; [ gpl3 ];
+    license = with lib.licenses; [ agpl3Plus ];
     platforms = lib.platforms.all;
   };
 })
