@@ -5,7 +5,7 @@
   imports = [
     ./checkmate/module.nix
     ./checkmate-capture/module.nix
-    ./flame/module.nix
+    # ./flame/module.nix
     ./passcore/module.nix
     ./crowdsec/module.nix
     ./tpa/module.nix
