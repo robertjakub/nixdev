@@ -30,7 +30,7 @@ buildNpmPackage (finalAttrs: {
 
   postInstall = ''
     substituteInPlace $out/share/inbuxa-admin/index.html \
-      --replace-fail '<meta name="api-base-url" content="" />' '<meta name="api-base-url" content="{{env \"INBUXA_API_URL\"}}" />'
+      --replace-fail '<meta name="api-base-url" content="" />' '<meta name="api-base-url" content="{{env `INBUXA_API_URL`}}" />'
   '';
 
 })
