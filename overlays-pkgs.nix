@@ -38,6 +38,6 @@ self: super: rec {
   inbuxa = {
     admin = super.callPackage ./inbuxa/console/package.nix { };
     webmail = super.callPackage ./inbuxa/webmail/package.nix { };
-    server = super.callPackage ./inbuxa/server.package.nix { };
+    server = super.callPackage ./inbuxa/server/package.nix { };
   };
 }
