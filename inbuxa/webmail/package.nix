@@ -1,6 +1,8 @@
 {
   buildNpmPackage,
   fetchFromGitea,
+  makeWrapper,
+  nodejs,
   ...
 }:
 
@@ -15,22 +17,29 @@ buildNpmPackage (finalAttrs: {
     rev = "inbuxa-v${finalAttrs.version}";
     hash = "sha256-Jg+KDj2V3glLRGSQgZukeV6xMcsIW0Bmq/I9uWtv11Y=";
   };
+  npmDepsFetcherVersion = 2;
+  npmDepsHash = "sha256-80lGNKOLiqFmJ9up8x1r4Wlbgir2nZjlzzT6y19zGeo=";
 
-  npmDepsHash = "sha256-z0eWrw887OPwC1c+LrNYo0ZZZYFx6oOAoSzXmNPnVNc=";
+  npmBuildScript = "build";
+  nativeBuildInputs = [ makeWrapper ];
 
-  # buildPhase = ''
-  #   runHook preBuild
-  #   npm run build
-  #   runHook postBuild
-  # '';
+  postPatch = ''
+    cp -f ${./package-lock.json} package-lock.json
+  '';
+  installPhase = ''
+    runHook preInstall
+    mkdir -p $out/webmail
+    cp -r node_modules $out/webmail
+    mkdir -p $out/webmail/web
+    mkdir -p $out/webmail/server
+    cp -r web/dist $out/webmail/web
+    cp -r server/dist $out/webmail/server
+    cp -r scripts $out/webmail
 
-  # installPhase = ''
-  #   runHook preInstall
-  #   mkdir -p $out/lib/node_modules/inbuxa-webmail
-  #   cp -r . $out/lib/node_modules/inbuxa-webmail
-  #   makeWrapper ${buildNpmPackage}/bin/node $out/bin/inbuxa-webmail \
-  #     --add-flags "$out/lib/node_modules/inbuxa-webmail/server/index.js" # Adjust to app entry point
-  #   runHook postInstall
-  # '';
+    makeWrapper ${nodejs}/bin/node $out/bin/inbuxa-webmail \
+      --add-flags "$out/webmail/server/dist/index.js" # Adjust to app entry point
+
+    runHook postInstall
+  '';
 
 })
