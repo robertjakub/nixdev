@@ -34,4 +34,10 @@ self: super: rec {
   passcore = super.callPackage ./passcore/package.nix { };
   crowdsec = super.callPackage ./crowdsec/package.nix { };
   traefik-proxy-admin = super.callPackage ./tpa/package.nix { };
+
+  inbuxa = {
+    admin = super.callPackage ./inbuxa/console/package.nix { };
+    webmail = super.callPackage ./inbuxa/webmail/package.nix { };
+    server = super.callPackage ./inbuxa/server.package.nix { };
+  };
 }

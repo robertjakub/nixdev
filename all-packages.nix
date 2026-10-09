@@ -22,4 +22,10 @@ in
   graylogPlugins = pkgs.graylogPlugins;
   graylog-forwarder = pkgs.graylog-forwarder;
   passcore = pkgs.passcore;
+
+  inbuxa = {
+    admin = pkgs.inbuxa.admin;
+    webmail = pkgs.inbuxa.webmail;
+    server = pkgs.inbuxa.server;
+  };
 }
