@@ -18,20 +18,20 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "inbuxa-server";
-  version = "2026.10.8";
+  version = "2026.10.10.1";
 
   src = fetchFromGitea {
     domain = "git.coffeylabs.org";
     owner = "inbuxa";
     repo = "inbuxa-server";
     rev = "v${finalAttrs.version}";
-    hash = "sha256-w2nc4eiomr5f6drX8lIUae2AHm9FTPIYrtrpA/cb54I=";
+    hash = "sha256-MZc0vjsli+a2Ao6qgGm4GJ/L6R2SZ9o/8csFGMC+Kjo=";
   };
 
   # Nix blocks network access during compilation.
   # This hash tells Nix how to safely pre-cache all Cargo dependencies.
   # Leave this empty on your first build, then swap it with the hash Nix outputs.
-  cargoHash = "sha256-OOjTySwTPAcXzKSVof5vi3AtdZmG7MHIgeoIM0lZHyU=";
+  cargoHash = "sha256-I6aEEnkqDfx7fKaxXHOglD5sKcH2jV3DlC9VzGOAEEs=";
 
   env = {
     # https://docs.rs/openssl/latest/openssl/#manual
