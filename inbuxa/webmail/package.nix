@@ -8,17 +8,17 @@
 
 buildNpmPackage (finalAttrs: {
   pname = "inbuxa-webmail";
-  version = "2026.10.5-ge94508e"; # Update this to the version you need
+  version = "2026.10.9-g62936ab"; # Update this to the version you need
 
   src = fetchFromGitea {
     domain = "git.coffeylabs.org";
     owner = "inbuxa";
     repo = "inbuxa-webmail";
     rev = "inbuxa-v${finalAttrs.version}";
-    hash = "sha256-Jg+KDj2V3glLRGSQgZukeV6xMcsIW0Bmq/I9uWtv11Y=";
+    hash = "sha256-2E3IhogK6r/zK5mQsL4uQa9/6F1opMiRFYDjt7Sbnnc=";
   };
   npmDepsFetcherVersion = 2;
-  npmDepsHash = "sha256-80lGNKOLiqFmJ9up8x1r4Wlbgir2nZjlzzT6y19zGeo=";
+  npmDepsHash = "sha256-YSKkM7+l+8RodOxnpG+vXupNnNn4kNueOGVV7TzpRvw=";
 
   npmBuildScript = "build";
   nativeBuildInputs = [ makeWrapper ];
@@ -26,6 +26,7 @@ buildNpmPackage (finalAttrs: {
   postPatch = ''
     cp -f ${./package-lock.json} package-lock.json
   '';
+
   installPhase = ''
     runHook preInstall
     mkdir -p $out/webmail
