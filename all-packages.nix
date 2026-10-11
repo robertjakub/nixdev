@@ -28,4 +28,9 @@ in
     webmail = pkgs.inbuxa.webmail;
     server = pkgs.inbuxa.server;
   };
+
+  hua = {
+    modbus-cache = pkgs.hua.modbus-cache;
+  };
+
 }

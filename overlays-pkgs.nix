@@ -40,4 +40,8 @@ self: super: rec {
     webmail = super.callPackage ./inbuxa/webmail/package.nix { };
     server = super.callPackage ./inbuxa/server/package.nix { };
   };
+
+  hua = {
+    modbus-cache = super.callPackage ./hua/modbus-cache/package.nix { };
+  };
 }
