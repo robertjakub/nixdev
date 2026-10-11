@@ -1,12 +1,16 @@
-{ python3, ... }:
+{ python3Packages, ... }:
 
-python3.pkgs.buildPythonApplication (finalAttrs: {
+python3Packages.buildPythonApplication (finalAttrs: {
   pname = "sun2000-modbus_cache";
   version = "0.0.1";
 
   format = "other";
   src = ./.;
   dontBuild = true;
+
+  propagatedBuildInputs = with python3Packages; [
+    pyyaml
+  ];
 
   installPhase = ''
     runHook preInstall

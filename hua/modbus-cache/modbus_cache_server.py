@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Modbus TCP cache + write-through proxy for Huawei SUN2000 inverters.
+"""
+Modbus TCP cache + write-through proxy for Huawei SUN2000 inverters.
 
 The SUN2000's Modbus TCP interface (via the SDongle) accepts only a very small
 number of concurrent connections. Point Home Assistant, a heating controller and
@@ -10,74 +11,65 @@ This proxy sits in front of it: it holds exactly ONE connection to the inverter,
 polls a configured set of registers on an interval, and serves those cached
 values to as many Modbus TCP clients as you like. Write requests (FC6) are
 forwarded straight through to the inverter, so control still works.
-
-Pure Python standard library — no dependencies.
-
-Configuration is via environment variables:
-    SUN2000_HOST        inverter / SDongle address        (required)
-    SUN2000_PORT        inverter Modbus port              (default 502)
-    SUN2000_UNIT_ID     Modbus unit / slave id            (default 1)
-    LISTEN_HOST         address to serve on               (default 0.0.0.0)
-    LISTEN_PORT         port to serve on                  (default 5502)
-    POLL_INTERVAL       seconds between polls             (default 10)
-    LOG_LEVEL           INFO / DEBUG / WARNING            (default INFO)
 """
 
+import argparse
 import asyncio
 import logging
 import os
 import signal
 import struct
+import sys
 import time
 
-# === Configuration (environment-driven) ===
-SDONGLE_HOST = os.environ.get("SUN2000_HOST")
-SDONGLE_PORT = int(os.environ.get("SUN2000_PORT", "502"))
-DEVICE_ID = int(os.environ.get("SUN2000_UNIT_ID", "1"))
+import yaml
 
-SERVER_HOST = os.environ.get("LISTEN_HOST", "0.0.0.0")
-SERVER_PORT = int(os.environ.get("LISTEN_PORT", "5502"))
-POLL_INTERVAL = int(os.environ.get("POLL_INTERVAL", "10"))
-
-if not SDONGLE_HOST:
-    raise SystemExit(
-        "SUN2000_HOST is not set.\n"
-        "Point it at your inverter's SDongle, e.g.  SUN2000_HOST=10.0.0.50 python3 modbus_cache_server.py"
-    )
-
-# Register batches to read: (start_address, count).
-# Defaults cover a SUN2000 with a LUNA2000 battery and a grid meter. Trim or
-# extend to match your hardware — reading registers your inverter doesn't expose
-# just logs a failed batch.
-REGISTER_BATCHES = [
-    (32016, 4),  # PV string 1/2 voltage + current
-    (32064, 2),  # Input power (int32)
-    (32069, 3),  # Phase A/B/C voltages
-    (32080, 2),  # Active power (int32)
-    (32085, 1),  # Grid frequency
-    (32087, 1),  # Inverter temperature
-    (32106, 2),  # Cumulative energy yield (uint32)
-    (32114, 2),  # Daily energy yield (uint32)
-    (37113, 2),  # Active grid power (int32)
-    (37119, 4),  # Grid export (2) + grid import (2)
-    (37760, 1),  # Battery SOC
-    (37765, 2),  # Battery power (int32)
-    (37780, 8),  # Battery total charge/discharge + daily
-]
-
-# === Logging ===
-logging.basicConfig(
-    level=os.environ.get("LOG_LEVEL", "INFO"),
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-logger = logging.getLogger("modbus_cache")
-
-# === Register Cache ===
-# Dict mapping register address -> uint16 value
 register_cache = {}
 cache_lock = asyncio.Lock()
 last_update = 0
+REGISTER_BATCHES = []
+args = {}
+
+
+def load_config_file(config_path):
+    """Attempts to read and parse the configuration file if it exists."""
+    if config_path and os.path.exists(config_path):
+        try:
+            with open(config_path, "r", encoding="utf-8") as f:
+                cfg = yaml.safe_load(f)
+                if cfg and isinstance(cfg, dict):
+                    return cfg
+        except Exception:  # noqa: BLE001,S110
+            pass  # Fail silently to allow alternative layers to handle it
+    return {}
+
+
+def load_and_convert(file_path):
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+
+        if not data or "register_batches" not in data:
+            logger.error("Error: Key 'register_batches' missing from the file.")
+            sys.exit(1)
+
+        register_batches = []
+        for item in data["register_batches"]:
+            if isinstance(item, list) and len(item) == 2:
+                register_batches.append((item[0], item[1]))
+        return register_batches
+
+    except FileNotFoundError:
+        logger.error(f"Error: The file '{file_path}' was not found.")
+        sys.exit(1)
+    except yaml.YAMLError as e:
+        logger.error(
+            f"Error: The file '{file_path}' does not contain valid YAML syntax.\nDetails: {e}"
+        )
+        sys.exit(1)
+    except Exception as e:  # noqa: BLE001
+        logger.error(f"An unexpected error occurred: {e}")
+        sys.exit(1)
 
 
 def init_cache():
@@ -87,44 +79,31 @@ def init_cache():
             register_cache[start + i] = 0
 
 
-# === SDongle Reader ===
-async def read_batch(reader, writer, start, count):
-    """Read a single register batch. Returns list of values or None."""
-    req = struct.pack(">HHHBBHH", 0, 0, 6, DEVICE_ID, 3, start, count)
-    writer.write(req)
-    await writer.drain()
+async def reader_loop():
+    """Periodically read from SDongle and update cache."""
+    global last_update
 
-    # Read full response in one go (max 9 header + 125*2 data)
-    resp = await asyncio.wait_for(reader.read(9 + count * 2), timeout=3)
+    # Try rapidly at first to fill cache, then slow down
+    retry_delay = 5
 
-    if len(resp) < 9:
-        return None
-
-    resp_tx, resp_proto, resp_len, resp_unit, resp_fc, byte_count = struct.unpack(  # noqa: RUF059
-        ">HHHBBB", resp[:9]
-    )
-
-    if resp_fc >= 0x80:  # Exception
-        return None
-
-    data = resp[9:]
-    # If we didn't get all data yet, read more
-    while len(data) < byte_count:
-        more = await asyncio.wait_for(reader.read(byte_count - len(data)), timeout=2)
-        if not more:
-            break
-        data += more
-
-    if len(data) >= count * 2:
-        return struct.unpack(">" + "H" * count, data[: count * 2])
-    return None
+    while True:
+        success = await read_sdongle()
+        if success:
+            last_update = time.time()
+            retry_delay = args.pooling  # Normal interval after success
+        else:
+            retry_delay = min(retry_delay, 10)  # Retry faster on failure
+            age = time.time() - last_update if last_update > 0 else -1
+            if age > 120:
+                logger.warning(f"Cache stale for {age:.0f}s")
+        await asyncio.sleep(retry_delay)
 
 
 async def read_sdongle():
     """Connect to SDongle and read all register batches in one session."""
     try:
         reader, writer = await asyncio.wait_for(
-            asyncio.open_connection(SDONGLE_HOST, SDONGLE_PORT),
+            asyncio.open_connection(args.host, args.port),
             timeout=10,
         )
     except Exception as e:  # noqa: BLE001
@@ -161,36 +140,46 @@ async def read_sdongle():
         )
 
     if success_count > 0:
-        logger.info(f"Poll: {success_count}/{success_count + fail_count} batches OK")
+        logger.debug(f"Poll: {success_count}/{success_count + fail_count} batches OK")
     return success_count > 0
 
 
-async def reader_loop():
-    """Periodically read from SDongle and update cache."""
-    global last_update
+async def read_batch(reader, writer, start, count):
+    """Read a single register batch. Returns list of values or None."""
+    req = struct.pack(">HHHBBHH", 0, 0, 6, args.unit, 3, start, count)
+    writer.write(req)
+    await writer.drain()
 
-    # Try rapidly at first to fill cache, then slow down
-    retry_delay = 5
+    # Read full response in one go (max 9 header + 125*2 data)
+    resp = await asyncio.wait_for(reader.read(9 + count * 2), timeout=3)
 
-    while True:
-        success = await read_sdongle()
-        if success:
-            last_update = time.time()
-            retry_delay = POLL_INTERVAL  # Normal interval after success
-        else:
-            retry_delay = min(retry_delay, 10)  # Retry faster on failure
-            age = time.time() - last_update if last_update > 0 else -1
-            if age > 120:
-                logger.warning(f"Cache stale for {age:.0f}s")
+    if len(resp) < 9:
+        return None
 
-        await asyncio.sleep(retry_delay)
+    resp_tx, resp_proto, resp_len, resp_unit, resp_fc, byte_count = struct.unpack(  # noqa: RUF059
+        ">HHHBBB", resp[:9]
+    )
+
+    if resp_fc >= 0x80:  # Exception
+        return None
+
+    data = resp[9:]
+    # If we didn't get all data yet, read more
+    while len(data) < byte_count:
+        more = await asyncio.wait_for(reader.read(byte_count - len(data)), timeout=2)
+        if not more:
+            break
+        data += more
+
+    if len(data) >= count * 2:
+        return struct.unpack(">" + "H" * count, data[: count * 2])
+    return None
 
 
-# === Modbus TCP Server ===
 async def handle_client(client_reader, client_writer):
     """Handle a single Modbus TCP client connection."""
     addr = client_writer.get_extra_info("peername")
-    logger.info(f"Client connected: {addr}")
+    logger.debug(f"Client connected: {addr}")
 
     try:
         while True:
@@ -266,7 +255,7 @@ async def handle_client(client_reader, client_writer):
     except Exception as e:  # noqa: BLE001
         logger.warning(f"Client {addr} error: {type(e).__name__}: {e}")
     finally:
-        logger.info(f"Client disconnected: {addr}")
+        logger.debug(f"Client disconnected: {addr}")
         try:
             client_writer.close()
             await client_writer.wait_closed()
@@ -278,7 +267,7 @@ async def forward_write(tx_id, unit_id, reg_addr, reg_value):
     """Forward a write request directly to the SDongle."""
     try:
         reader, writer = await asyncio.wait_for(
-            asyncio.open_connection(SDONGLE_HOST, SDONGLE_PORT),
+            asyncio.open_connection(args.host, args.port),
             timeout=10,
         )
         req = struct.pack(">HHHBBHH", 0, 0, 6, unit_id, 6, reg_addr, reg_value)
@@ -301,24 +290,12 @@ async def forward_write(tx_id, unit_id, reg_addr, reg_value):
         return False
 
 
-# === Main ===
-async def main():
+async def serve():
     init_cache()
-
     # Start reader loop
     reader_task = asyncio.create_task(reader_loop())
-
     # Start Modbus TCP server
-    server = await asyncio.start_server(handle_client, SERVER_HOST, SERVER_PORT)
-    logger.info(f"Modbus Cache Server listening on {SERVER_HOST}:{SERVER_PORT}")
-    logger.info(
-        f"Polling SDongle at {SDONGLE_HOST}:{SDONGLE_PORT} every {POLL_INTERVAL}s"
-    )
-    logger.info(
-        f"Caching {sum(c for _, c in REGISTER_BATCHES)} registers in {len(REGISTER_BATCHES)} batches"
-    )
-
-    # Handle shutdown signals
+    server = await asyncio.start_server(handle_client, args.bind_host, args.bind_port)
     stop = asyncio.Event()
     loop = asyncio.get_event_loop()
     for sig in (signal.SIGTERM, signal.SIGINT):
@@ -333,4 +310,119 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    pre_parser = argparse.ArgumentParser(add_help=False)
+    pre_parser.add_argument("-c", "--config", default="config.yaml")
+    pre_args, _ = pre_parser.parse_known_args()
+
+    # 1. Load data from the target config file (custom or default config.yaml)
+    config_data = load_config_file(pre_args.config)
+
+    # 2. Compute dynamic fallbacks (ENV Variable > Config File)
+
+    # Final parser setup supporting full argument overrides
+    parser = argparse.ArgumentParser(
+        description="Load Modbus settings and registers. Priority: CLI flag > ENV variable > Config file > Default.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "-c",
+        "--config",
+        default="config.yaml",
+        metavar="PATH",
+        help="Path to the main application configuration YAML file.",
+    )
+
+    parser.add_argument(
+        "-r",
+        "--registers",
+        default=(
+            os.environ.get("REGISTERS_FILE")
+            or config_data.get("REGISTERS_FILE")
+            or "registers.yaml"
+        ),
+        metavar="PATH",
+        help="Path to the registers YAML file.",
+    )
+
+    parser.add_argument(
+        "--host",
+        default=(
+            os.environ.get("SUN2000_HOST")
+            or config_data.get("SUN2000_HOST")
+            or "192.168.1.200"
+        ),
+        metavar="IP",
+        help="Inverter IP address or hostname.",
+    )
+
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=int(
+            os.environ.get("SUN2000_PORT") or config_data.get("SUN2000_PORT") or "502"
+        ),
+        metavar="PORT",
+        help="Modbus TCP connection port.",
+    )
+
+    parser.add_argument(
+        "--unit",
+        type=int,
+        default=int(
+            os.environ.get("SUN2000_UNIT_ID")
+            or config_data.get("SUN2000_UNIT_ID")
+            or "1"
+        ),
+        metavar="UNIT",
+        help="Modbus unit / slave id.",
+    )
+
+    parser.add_argument(
+        "--bind-host",
+        default=(
+            os.environ.get("LISTEN_HOST") or config_data.get("LISTEN_HOST") or "0.0.0.0"
+        ),
+        metavar="IP",
+        help="address to serve on.",
+    )
+
+    parser.add_argument(
+        "--bind-port",
+        default=int(
+            os.environ.get("LISTEN_PORT") or config_data.get("LISTEN_PORT") or "5502"
+        ),
+        metavar="IP",
+        help="port to serve on.",
+    )
+
+    parser.add_argument(
+        "--pooling",
+        default=int(
+            os.environ.get("POLL_INTERVAL") or config_data.get("POLL_INTERVAL") or "10"
+        ),
+        metavar="TIME",
+        help="seconds between polls.",
+    )
+
+    parser.add_argument(
+        "--loglevel",
+        default=os.environ.get("LOG_LEVEL") or config_data.get("LOG_LEVEL") or "INFO",
+        metavar="LOG_LEVEL",
+        help="Logging level (INFO/DEBUG/WARNING).",
+    )
+
+    args = parser.parse_args()
+
+    logging.basicConfig(
+        level=args.loglevel,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    logger = logging.getLogger("modbus_cache")
+
+    logger.info(f"Modbus Cache Server listening on {args.bind_host}:{args.bind_port}")
+    logger.info(f"Polling SDongle at {args.host}:{args.port} every {args.pooling}")
+
+    REGISTER_BATCHES = load_and_convert(args.registers)
+
+    asyncio.run(serve())
