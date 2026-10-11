@@ -31,6 +31,7 @@ in
 
   hua = {
     modbus-cache = pkgs.hua.modbus-cache;
+    sun2000-scrape = pkgs.hua.sun2000-scrape;
   };
 
 }

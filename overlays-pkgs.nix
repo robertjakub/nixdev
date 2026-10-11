@@ -43,5 +43,6 @@ self: super: rec {
 
   hua = {
     modbus-cache = super.callPackage ./hua/modbus-cache/package.nix { };
+    sun2000-scrape = super.callPackage ./hua/sun2000-scrape/package.nix { };
   };
 }
