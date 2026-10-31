@@ -1,15 +1,11 @@
-#!/usr/bin/env python3
+import argparse
 import inspect
+import logging
+import os
 import struct
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from pymodbus.client import ModbusTcpClient
-
-# --- Configuration Profile ---
-INVERTER_IP = "127.0.0.1"
-PORT = 5502
-SLAVE_ID = 1
-LISTEN_PORT = 9300  # The port Prometheus will scrape
 
 
 def get_exact_modbus_keyword(client_instance):
@@ -36,14 +32,15 @@ def decode_huawei_int32(reg_list):
 
 def collect_metrics():
     """Connects to the inverter, fetches registers, and returns clean telemetry data."""
-    client = ModbusTcpClient(INVERTER_IP, port=PORT)
+    logger.debug(f"connecting to modbus at {args.host}:{args.port}")
+    client = ModbusTcpClient(args.host, port=args.port)
     if not client.connect():
         return None
 
     kw_name = get_exact_modbus_keyword(client)
     try:
-        pv_kwargs = {"address": 32064, "count": 2, kw_name: SLAVE_ID}
-        grid_kwargs = {"address": 37113, "count": 2, kw_name: SLAVE_ID}
+        pv_kwargs = {"address": 32064, "count": 2, kw_name: int(args.slave)}
+        grid_kwargs = {"address": 37113, "count": 2, kw_name: int(args.slave)}
 
         pv_response = client.read_holding_registers(**pv_kwargs)
         grid_response = client.read_holding_registers(**grid_kwargs)
@@ -53,11 +50,35 @@ def collect_metrics():
 
         pv_power = decode_huawei_int32(pv_response.registers)
         grid_power = decode_huawei_int32(grid_response.registers)
+
+        if pv_power < 0:
+            logger.info("PV real-time power lower than 0W, check Inverter")
+            return None
+
+        if pv_power > int(args.peak):
+            logger.info(
+                f"PV real-time power ({pv_power}) exceeds the PEAK value, check Inverter"
+            )
+            return None
+
+        if grid_power > int(args.grid_peak) or grid_power < -int(args.grid_peak):
+            logger.info(
+                f"Grid ({abs(grid_power)}) exceeds the maximum of the line ({args.grid_peak})"
+            )
+            return None
+
         home_load = pv_power - grid_power
+
+        if home_load < 0:
+            logger.info(f"Home {home_load} must be 0 or greater")
+            return None
 
         # Separate grid power into explicit export/import variables for easy graphing
         grid_export = max(0, grid_power)
         grid_import = max(0, -grid_power)
+
+        logger.debug(f"pv: {pv_power} grid: {grid_power} home: {home_load}")
+        logger.debug(f"grid, export: {grid_export} import: {grid_import}")
 
         return {
             "huawei_pv_generation_watts": pv_power,
@@ -66,7 +87,8 @@ def collect_metrics():
             "huawei_grid_import_watts": grid_import,
             "huawei_home_consumption_watts": home_load,
         }
-    except Exception:  # noqa: BLE001
+    except Exception as e:  # noqa: BLE001
+        logger.info(f"error fetching modbus data: {e}")
         return None
     finally:
         client.close()
@@ -109,17 +131,92 @@ class PrometheusMetricsHandler(BaseHTTPRequestHandler):
         return
 
 
-def run_server():
-    server = HTTPServer(("0.0.0.0", LISTEN_PORT), PrometheusMetricsHandler)
-    print(
-        f"🚀 Huawei Solar Prometheus Exporter actively listening on http://localhost:{LISTEN_PORT}/metrics"
+if __name__ == "__main__":
+    pre_parser = argparse.ArgumentParser(add_help=False)
+    pre_args, _ = pre_parser.parse_known_args()
+
+    parser = argparse.ArgumentParser(
+        description="🚀 Huawei Solar Prometheus Exporter.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
+
+    parser.add_argument(
+        "--loglevel",
+        default=os.environ.get("LOG_LEVEL") or "INFO",
+        metavar="LOG_LEVEL",
+        help="Logging level (INFO/DEBUG/WARNING).",
+    )
+
+    parser.add_argument(
+        "--host",
+        default="127.0.0.1",
+        metavar="IP",
+        help="Inverter IP address.",
+    )
+
+    parser.add_argument(
+        "--port",
+        default="5502",
+        metavar="PORT",
+        help="Inverter TCP Port.",
+    )
+
+    parser.add_argument(
+        "--slave",
+        default="1",
+        metavar="ID",
+        help="Inverter Modbus SLAVE_ID.",
+    )
+
+    parser.add_argument(
+        "--bind-host",
+        default="0.0.0.0",
+        metavar="IP",
+        help="Listen on IP.",
+    )
+
+    parser.add_argument(
+        "--bind-port",
+        default="9300",
+        metavar="PORT",
+        help="Listen on PORT.",
+    )
+
+    parser.add_argument(
+        "-m",
+        "--peak",
+        default="6000",
+        metavar="Watt",
+        help="Inverter Max PV peak.",
+    )
+
+    parser.add_argument(
+        "-g",
+        "--grid-peak",
+        default="12000",
+        metavar="Watt",
+        help="Max grid peak.",
+    )
+
+    args = parser.parse_args()
+
+    logging.basicConfig(
+        level=args.loglevel,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    logger = logging.getLogger("hspe")
+
+    logger.info(
+        f"Huawei Solar Prometheus Exporter listening on {args.bind_host}:{args.bind_port}"
+    )
+
+    logger.info(f"Inverter maximum kWp: {args.peak}")
+
+    server = HTTPServer((args.bind_host, int(args.bind_port)), PrometheusMetricsHandler)
+    logger.info("Server running")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
-        print("\nStopping exporter server...")
+        logger.info("Stopping exporter server...")
         server.server_close()
-
-
-if __name__ == "__main__":
-    run_server()
