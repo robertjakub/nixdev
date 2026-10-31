@@ -2,7 +2,7 @@
 
 python3Packages.buildPythonApplication (finalAttrs: {
   pname = "sun2000-scrape";
-  version = "0.0.2";
+  version = "0.0.3";
 
   format = "other";
   src = ./.;
