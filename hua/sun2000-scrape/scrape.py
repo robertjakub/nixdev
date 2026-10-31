@@ -212,8 +212,9 @@ if __name__ == "__main__":
     logger.info(
         f"Huawei Solar Prometheus Exporter listening on {args.bind_host}:{args.bind_port}"
     )
-
+    logger.info(f"Modbus server: {args.host}:{args.port}")
     logger.info(f"Inverter maximum kWp: {args.peak}")
+    logger.info(f"GRID capacity: {args.grid_peak}")
 
     server = HTTPServer((args.bind_host, int(args.bind_port)), PrometheusMetricsHandler)
     logger.info("Server running")
