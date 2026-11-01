@@ -45,4 +45,9 @@ self: super: rec {
     modbus-cache = super.callPackage ./hua/modbus-cache/package.nix { };
     sun2000-scrape = super.callPackage ./hua/sun2000-scrape/package.nix { };
   };
+
+  pvdesk = {
+    pv-dashboard = super.callPackage ./pvdesk/desk/package.nix { };
+    sun2000-scraper = super.callPackage ./pvdesk/scrape/package.nix { };
+  };
 }
