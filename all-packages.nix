@@ -34,7 +34,7 @@ in
     sun2000-scrape = pkgs.hua.sun2000-scrape;
   };
 
-  pvdesk = {
+  pvdash = {
     pv-dashboard = pkgs.pvdesk.pv-dashboard;
     sun2000-scraper = pkgs.pvdesk.sun2000-scraper;
   };
