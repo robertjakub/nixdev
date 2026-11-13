@@ -19,6 +19,10 @@ python3Packages.buildPythonApplication (finalAttrs: {
     cp modbus_cache_server.py $out/bin/modbus_cache
     chmod +x $out/bin/modbus_cache
 
+    # flat share/ — consumers reference the package share dir directly
+    mkdir -p $out/share
+    cp registers.yaml $out/share/registers.yaml
+
     runHook postInstall
   '';
 })

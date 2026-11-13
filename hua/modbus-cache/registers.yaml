@@ -1,0 +1,15 @@
+# Default register batches: [address, length]
+register_batches:
+  - [32016, 4] # PV string 1/2 voltage + current
+  - [32064, 2] # Input power (int32)
+  - [32069, 3] # Phase A/B/C voltages
+  - [32080, 2] # Active power (int32)
+  - [32085, 1] # Grid frequency
+  - [32087, 1] # Inverter temperature
+  - [32106, 2] # Cumulative energy yield (uint32)
+  - [32114, 2] # Daily energy yield (uint32)
+  - [37113, 2] # Active grid power (int32)
+  - [37119, 4] # Grid export (2) + grid import (2)
+  - [37760, 1] # Battery SOC
+  - [37765, 2] # Battery power (int32)
+  - [37780, 8] # Battery total charge/discharge + daily
